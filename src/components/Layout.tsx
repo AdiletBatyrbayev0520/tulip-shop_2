@@ -1,15 +1,11 @@
-import { Outlet, useLocation } from 'react-router-dom';
-import { BottomNav } from './BottomNav';
+import { Outlet } from "react-router-dom";
+import BottomNav from "./BottomNav";
 
-export function Layout() {
-  const location = useLocation();
-  const hideNavPaths = ['/', '/login', '/order/'];
-  const shouldHideNav = hideNavPaths.some(path => location.pathname.startsWith(path) && location.pathname !== '/orders');
-
+export default function Layout() {
   return (
-    <div className="min-h-screen bg-background-light pb-24 relative">
+    <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden pb-24">
       <Outlet />
-      {!shouldHideNav && <BottomNav />}
+      <BottomNav />
     </div>
   );
 }

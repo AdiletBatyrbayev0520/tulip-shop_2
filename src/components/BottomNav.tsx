@@ -1,54 +1,61 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Flower2, ShoppingBasket, ReceiptText, User } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { Link, useLocation } from "react-router-dom";
+import { clsx } from "clsx";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-export function BottomNav() {
+export default function BottomNav() {
   const location = useLocation();
-  
+  const path = location.pathname;
+
   const navItems = [
-    { path: '/shop', icon: Flower2, label: 'Shop' },
-    { path: '/basket', icon: ShoppingBasket, label: 'Basket' },
-    { path: '/orders', icon: ReceiptText, label: 'Orders' },
-    { path: '/profile', icon: User, label: 'Profile' },
+    { name: "Shop", path: "/shop", icon: "local_florist" },
+    { name: "Basket", path: "/basket", icon: "shopping_basket" },
+    { name: "Orders", path: "/orders", icon: "receipt_long" },
+    { name: "Profile", path: "/profile", icon: "person" },
   ];
 
+  // Don't show bottom nav on Home page
+  if (path === "/") return null;
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-zinc-100 pb-safe shadow-[0_-4px_20px_-2px_rgba(0,0,0,0.05)] z-50">
-      <div className="flex justify-around items-center pt-3 pb-2">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-surface-dark/90 backdrop-blur-lg border-t border-zinc-100 dark:border-zinc-800 pb-safe z-50">
+      <div className="flex justify-around items-center pt-3 pb-8 px-4">
         {navItems.map((item) => {
-          const isActive = location.pathname.startsWith(item.path);
-          const Icon = item.icon;
-          
+          const isActive = path.startsWith(item.path);
           return (
             <Link
-              key={item.path}
+              key={item.name}
               to={item.path}
-              className="flex flex-col items-center group w-16 relative"
+              className={clsx(
+                "flex flex-col items-center gap-1 group w-16 transition-colors",
+                isActive
+                  ? "text-primary"
+                  : "text-zinc-400 dark:text-white/60 hover:text-primary",
+              )}
             >
               <div className="relative">
-                <Icon 
-                  className={cn(
-                    "w-6 h-6 mb-1 transition-colors",
-                    isActive ? "text-primary" : "text-zinc-400 group-hover:text-primary"
-                  )} 
-                  strokeWidth={isActive ? 2.5 : 2}
-                />
-                {item.label === 'Orders' && isActive && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary border-2 border-white rounded-full"></span>
+                <span
+                  className={clsx(
+                    "material-symbols-outlined",
+                    isActive && "fill",
+                  )}
+                >
+                  {item.icon}
+                </span>
+                {item.name === "Basket" && (
+                  <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">
+                    2
+                  </span>
+                )}
+                {item.name === "Orders" && isActive && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary border-2 border-white dark:border-surface-dark rounded-full"></span>
                 )}
               </div>
-              <span 
-                className={cn(
-                  "text-[10px] transition-colors",
-                  isActive ? "font-semibold text-primary" : "font-medium text-zinc-400 group-hover:text-primary"
+              <span
+                className={clsx(
+                  "text-[10px] leading-none tracking-tight",
+                  isActive ? "font-bold" : "font-medium",
                 )}
               >
-                {item.label}
+                {item.name}
               </span>
             </Link>
           );
