@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { clsx } from "clsx";
+import { Link } from "react-router-dom";
+import { useAppContext, Bouquet } from "../context/AppContext";
 
 const BOUQUETS = [
   {
@@ -62,9 +64,29 @@ const COLORS = ["All Flowers", "Red", "Yellow", "Pink", "Mixed"];
 const COUNTS = [5, 11, 21, 51, 101];
 
 export default function Shop() {
+  const { isLoggedIn, setIsLoggedIn, addToBasket, basketCount } = useAppContext();
   const [selectedColor, setSelectedColor] = useState("All Flowers");
   const [selectedCount, setSelectedCount] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pendingItem, setPendingItem] = useState<Bouquet | null>(null);
+
+  const handleBuy = (bouquet: Bouquet) => {
+    if (isLoggedIn) {
+      addToBasket(bouquet);
+    } else {
+      setPendingItem(bouquet);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleSignIn = () => {
+    setIsLoggedIn(true);
+    if (pendingItem) {
+      addToBasket(pendingItem);
+      setPendingItem(null);
+    }
+    setIsModalOpen(false);
+  };
 
   const filteredBouquets = BOUQUETS.filter((b) => {
     if (selectedColor !== "All Flowers" && b.color !== selectedColor)
@@ -86,12 +108,14 @@ export default function Shop() {
           Fresh Tulips
         </h2>
         <div className="flex w-10 items-center justify-end">
-          <button className="relative flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-zinc-900 dark:text-white">
+          <Link to="/basket" className="relative flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-zinc-900 dark:text-white">
             <span className="material-symbols-outlined">shopping_bag</span>
-            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">
-              2
-            </span>
-          </button>
+            {basketCount > 0 && (
+              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">
+                {basketCount}
+              </span>
+            )}
+          </Link>
         </div>
       </header>
 
@@ -159,7 +183,7 @@ export default function Shop() {
                   ${bouquet.price}
                 </p>
                 <button 
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => handleBuy(bouquet)}
                   className="bg-primary text-white rounded-lg px-3 py-1.5 text-xs font-bold active:scale-95 transition-transform"
                 >
                   Buy
@@ -197,7 +221,10 @@ export default function Shop() {
             <p className="text-[#89616f] dark:text-white/60 text-sm mb-8 leading-relaxed">
               Sign in to track your orders and save your favorite bouquets.
             </p>
-            <button className="w-full bg-[#181113] dark:bg-white text-white dark:text-[#181113] h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-3 transition-transform active:scale-95 hover:shadow-lg">
+            <button 
+              onClick={handleSignIn}
+              className="w-full bg-[#181113] dark:bg-white text-white dark:text-[#181113] h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-3 transition-transform active:scale-95 hover:shadow-lg"
+            >
               <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>

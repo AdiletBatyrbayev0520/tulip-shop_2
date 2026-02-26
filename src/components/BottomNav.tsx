@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import { clsx } from "clsx";
+import { useAppContext } from "../context/AppContext";
 
 export default function BottomNav() {
   const location = useLocation();
   const path = location.pathname;
+  const { basketCount } = useAppContext();
 
   const navItems = [
     { name: "Shop", path: "/shop", icon: "local_florist" },
@@ -40,9 +42,9 @@ export default function BottomNav() {
                 >
                   {item.icon}
                 </span>
-                {item.name === "Basket" && (
+                {item.name === "Basket" && basketCount > 0 && (
                   <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">
-                    2
+                    {basketCount}
                   </span>
                 )}
                 {item.name === "Orders" && isActive && (

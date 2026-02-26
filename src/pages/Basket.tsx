@@ -1,11 +1,27 @@
 import { useState } from "react";
 import { clsx } from "clsx";
 import { Link } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 
 export default function Basket() {
-  const [deliveryType, setDeliveryType] = useState<"delivery" | "pickup">(
-    "delivery",
-  );
+  const { basket, basketCount, basketTotal, updateQuantity, removeFromBasket } = useAppContext();
+  const [deliveryType, setDeliveryType] = useState<"delivery" | "pickup">("delivery");
+  const [itemToRemove, setItemToRemove] = useState<number | null>(null);
+
+  const handleMinus = (id: number, currentQuantity: number) => {
+    if (currentQuantity === 1) {
+      setItemToRemove(id);
+    } else {
+      updateQuantity(id, -1);
+    }
+  };
+
+  const confirmRemove = () => {
+    if (itemToRemove !== null) {
+      removeFromBasket(itemToRemove);
+      setItemToRemove(null);
+    }
+  };
 
   return (
     <div className="flex flex-col w-full h-full pb-40">
@@ -20,102 +36,76 @@ export default function Basket() {
           My Basket
         </h2>
         <div className="flex w-10 items-center justify-end">
-          <button className="relative flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-zinc-900 dark:text-white">
+          <Link to="/basket" className="relative flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-zinc-900 dark:text-white">
             <span className="material-symbols-outlined fill">shopping_bag</span>
-            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">
-              2
-            </span>
-          </button>
+            {basketCount > 0 && (
+              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">
+                {basketCount}
+              </span>
+            )}
+          </Link>
         </div>
       </header>
 
       <div className="p-4 flex flex-col gap-4">
-        {/* Cart Items */}
-        <div className="flex gap-4 p-3 bg-white dark:bg-white/5 rounded-2xl border border-zinc-100 dark:border-white/10 shadow-sm relative group">
-          <div
-            className="w-24 h-24 shrink-0 rounded-xl bg-cover bg-center"
-            style={{
-              backgroundImage:
-                'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDnxf9EwEeSfiRuSoF0RrAsOMw3tz0yx968qWZeJu2xRUkb4eUxqGVwk3pLh4VlYsk7aQXTyu8qCBgCtBn-WkfivND-8EiA_ZAv0u84tgvPXYyu0q0lC70oGV8kEWV_cSY0O2OOBvOUsKBkPc0VOjlD6iIv2khn0HHblPqYJfQ_gxeyQktrAn-cKopXE2xrXoXS62T6vKI4FNPAKhOpZ-mAcKcDF181US4MMHOJELr1PfYPT_pF7gwtxDHmvHTYkGIxyQFKCmRvJU4")',
-            }}
-          ></div>
-          <div className="flex flex-col flex-1 justify-between py-1">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold text-zinc-900 dark:text-white text-sm">
-                  51 Pink Parrots
-                </h3>
-                <p className="text-xs text-zinc-500 dark:text-white/60 mt-0.5">
-                  Fresh Tulips
-                </p>
-              </div>
-              <button className="text-zinc-400 dark:text-white/40 hover:text-red-500 transition-colors">
-                <span className="material-symbols-outlined text-xl">
-                  delete
-                </span>
-              </button>
-            </div>
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-primary font-bold text-lg">$89</p>
-              <div className="flex items-center bg-background-light dark:bg-white/10 rounded-lg p-1 gap-3">
-                <button className="w-6 h-6 flex items-center justify-center bg-white dark:bg-white/10 rounded text-zinc-900 dark:text-white shadow-sm active:scale-95">
-                  <span className="material-symbols-outlined text-xs font-bold">
-                    remove
-                  </span>
-                </button>
-                <span className="text-sm font-semibold w-4 text-center">1</span>
-                <button className="w-6 h-6 flex items-center justify-center bg-primary rounded text-white shadow-sm active:scale-95">
-                  <span className="material-symbols-outlined text-xs font-bold">
-                    add
-                  </span>
-                </button>
-              </div>
-            </div>
+        {basket.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-zinc-500 dark:text-white/60">
+            <span className="material-symbols-outlined text-6xl mb-4 opacity-50">shopping_basket</span>
+            <p className="text-lg font-medium">Your basket is empty</p>
+            <Link to="/shop" className="mt-4 text-primary font-bold hover:underline">Go to Shop</Link>
           </div>
-        </div>
-
-        <div className="flex gap-4 p-3 bg-white dark:bg-white/5 rounded-2xl border border-zinc-100 dark:border-white/10 shadow-sm relative group">
-          <div
-            className="w-24 h-24 shrink-0 rounded-xl bg-cover bg-center"
-            style={{
-              backgroundImage:
-                'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDv2Hxth85v8SnzT4Id3br6wma1uU3JPaYjOXAUHYxGONaWDzqVX-LxYxJlXYyGBEasHtVZ9gJ4QfgEGAE54yNUX3c8ENNVXbNP-OACkbav6lBZJ30Txk_swjxulWYU2MYEev_yi9x8GE1vkYTaeUZ1TXSqraRj6bUuOqiysRQRN23qAc70f6SVsgufpqqPTezRMAkJSbt5j6V6KGQMiL1tHUcCCW5MyFhkyE3Pf8noNSGq15qHkipqWmRA4h2RP9c-refgYbqVqfk")',
-            }}
-          ></div>
-          <div className="flex flex-col flex-1 justify-between py-1">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold text-zinc-900 dark:text-white text-sm">
-                  41 Yellow Suns
-                </h3>
-                <p className="text-xs text-zinc-500 dark:text-white/60 mt-0.5">
-                  Fresh Tulips
-                </p>
+        ) : (
+          basket.map((item) => (
+            <div key={item.id} className="flex gap-4 p-3 bg-white dark:bg-white/5 rounded-2xl border border-zinc-100 dark:border-white/10 shadow-sm relative group">
+              <div
+                className="w-24 h-24 shrink-0 rounded-xl bg-cover bg-center"
+                style={{ backgroundImage: `url("${item.image}")` }}
+              ></div>
+              <div className="flex flex-col flex-1 justify-between py-1">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-zinc-900 dark:text-white text-sm">
+                      {item.name}
+                    </h3>
+                    <p className="text-xs text-zinc-500 dark:text-white/60 mt-0.5">
+                      Fresh Tulips
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setItemToRemove(item.id)}
+                    className="text-zinc-400 dark:text-white/40 hover:text-red-500 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      delete
+                    </span>
+                  </button>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-primary font-bold text-lg">${item.price}</p>
+                  <div className="flex items-center bg-background-light dark:bg-white/10 rounded-lg p-1 gap-3">
+                    <button 
+                      onClick={() => handleMinus(item.id, item.quantity)}
+                      className="w-6 h-6 flex items-center justify-center bg-white dark:bg-white/10 rounded text-zinc-900 dark:text-white shadow-sm active:scale-95"
+                    >
+                      <span className="material-symbols-outlined text-xs font-bold">
+                        remove
+                      </span>
+                    </button>
+                    <span className="text-sm font-semibold w-4 text-center">{item.quantity}</span>
+                    <button 
+                      onClick={() => updateQuantity(item.id, 1)}
+                      className="w-6 h-6 flex items-center justify-center bg-primary rounded text-white shadow-sm active:scale-95"
+                    >
+                      <span className="material-symbols-outlined text-xs font-bold">
+                        add
+                      </span>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <button className="text-zinc-400 dark:text-white/40 hover:text-red-500 transition-colors">
-                <span className="material-symbols-outlined text-xl">
-                  delete
-                </span>
-              </button>
             </div>
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-primary font-bold text-lg">$75</p>
-              <div className="flex items-center bg-background-light dark:bg-white/10 rounded-lg p-1 gap-3">
-                <button className="w-6 h-6 flex items-center justify-center bg-white dark:bg-white/10 rounded text-zinc-900 dark:text-white shadow-sm active:scale-95">
-                  <span className="material-symbols-outlined text-xs font-bold">
-                    remove
-                  </span>
-                </button>
-                <span className="text-sm font-semibold w-4 text-center">1</span>
-                <button className="w-6 h-6 flex items-center justify-center bg-primary rounded text-white shadow-sm active:scale-95">
-                  <span className="material-symbols-outlined text-xs font-bold">
-                    add
-                  </span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+          ))
+        )}
       </div>
 
       <div className="px-4 pb-4">
@@ -248,12 +238,17 @@ export default function Basket() {
             Total Price
           </span>
           <span className="text-2xl font-extrabold text-zinc-900 dark:text-white">
-            $164.00
+            ${basketTotal.toFixed(2)}
           </span>
         </div>
         <Link
           to="/orders"
-          className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          className={clsx(
+            "w-full font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2",
+            basket.length > 0 
+              ? "bg-primary hover:bg-primary/90 text-white shadow-primary/30" 
+              : "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 pointer-events-none shadow-none"
+          )}
         >
           <span>Complete Order</span>
           <span className="material-symbols-outlined text-lg">
@@ -261,6 +256,34 @@ export default function Basket() {
           </span>
         </Link>
       </div>
+
+      {itemToRemove !== null && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-[320px] bg-white dark:bg-[#2A151C] rounded-3xl shadow-2xl p-6 flex flex-col items-center text-center animate-fade-in-up">
+            <div className="mb-4 rounded-full bg-red-100 dark:bg-red-900/30 p-4">
+              <span className="material-symbols-outlined text-red-500 text-3xl">delete</span>
+            </div>
+            <h3 className="text-xl font-bold text-[#181113] dark:text-white mb-2">Remove Item?</h3>
+            <p className="text-[#89616f] dark:text-white/60 text-sm mb-6 leading-relaxed">
+              Do you want to remove this item from basket?
+            </p>
+            <div className="flex gap-3 w-full">
+              <button 
+                onClick={() => setItemToRemove(null)}
+                className="flex-1 bg-zinc-100 dark:bg-white/10 text-zinc-900 dark:text-white h-12 rounded-xl font-bold text-sm transition-transform active:scale-95"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmRemove}
+                className="flex-1 bg-red-500 text-white h-12 rounded-xl font-bold text-sm transition-transform active:scale-95 shadow-lg shadow-red-500/30"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,89 @@
+import { createContext, useContext, useState, ReactNode } from 'react';
+
+export type Bouquet = {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  color: string;
+  count: number;
+};
+
+export type BasketItem = Bouquet & { quantity: number };
+
+interface AppContextType {
+  isLoggedIn: boolean;
+  setIsLoggedIn: (value: boolean) => void;
+  basket: BasketItem[];
+  addToBasket: (item: Bouquet) => void;
+  removeFromBasket: (id: number) => void;
+  updateQuantity: (id: number, delta: number) => void;
+  basketCount: number;
+  basketTotal: number;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [basket, setBasket] = useState<BasketItem[]>([]);
+
+  const addToBasket = (item: Bouquet) => {
+    setBasket((prev) => {
+      const existing = prev.find((i) => i.id === item.id);
+      if (existing) {
+        return prev.map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      }
+      return [...prev, { ...item, quantity: 1 }];
+    });
+  };
+
+  const removeFromBasket = (id: number) => {
+    setBasket((prev) => prev.filter((i) => i.id !== id));
+  };
+
+  const updateQuantity = (id: number, delta: number) => {
+    setBasket((prev) =>
+      prev.map((i) => {
+        if (i.id === id) {
+          const newQuantity = i.quantity + delta;
+          return { ...i, quantity: newQuantity > 0 ? newQuantity : 1 };
+        }
+        return i;
+      })
+    );
+  };
+
+  const basketCount = basket.reduce((sum, item) => sum + item.quantity, 0);
+  const basketTotal = basket.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  return (
+    <AppContext.Provider
+      value={{
+        isLoggedIn,
+        setIsLoggedIn,
+        basket,
+        addToBasket,
+        removeFromBasket,
+        updateQuantity,
+        basketCount,
+        basketTotal,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+export function useAppContext() {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
+}
