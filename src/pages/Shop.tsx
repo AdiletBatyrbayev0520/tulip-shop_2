@@ -31,8 +31,7 @@ export default function Shop() {
       try {
         const data = await api.getBouquets({
           color: selectedColor === "All Flowers" ? undefined : selectedColor,
-          min_flower_quantity: selectedCount || undefined,
-          max_flower_quantity: selectedCount || undefined,
+          flower_quantity: selectedCount || undefined,
         });
         if (isMounted) setBouquets(data);
       } catch (error) {
@@ -59,8 +58,8 @@ export default function Shop() {
   };
 
   return (
-    <div className="flex flex-col w-full h-full">
-      <header className="sticky top-0 z-40 flex items-center bg-white/80 dark:bg-background-dark/80 backdrop-blur-md p-4 pb-2 justify-between border-b border-zinc-100 dark:border-white/10">
+    <div className="relative flex flex-col w-full h-full">
+      <header className="fixed w-full top-0 left-0 z-40 flex items-center bg-white/80 dark:bg-background-dark/80 backdrop-blur-md p-4 pb-2 justify-between border-b border-zinc-100 dark:border-white/10">
         <div className="text-primary flex size-10 shrink-0 items-center justify-center">
           <Icon name="local_florist" className="text-3xl" />
         </div>
@@ -149,7 +148,7 @@ export default function Shop() {
           </div>
         ) : (
           bouquets.map((bouquet) => (
-            <div key={bouquet.bouquet_id}>
+            <div key={bouquet.id}>
               <BouquetCard
                 bouquet={bouquet}
                 variant="shop"

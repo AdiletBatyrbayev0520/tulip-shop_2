@@ -1,5 +1,5 @@
 export type Bouquet = {
-    bouquet_id: number;
+    id: number;
     name: string;
     price: number;
     image_url: string | null;

@@ -3,12 +3,21 @@ import { Input } from "./ui/Input";
 import { Icon } from "./ui/Icon";
 import { DeliveryType } from "../types";
 
-interface CheckoutFormProps {
+export interface CheckoutFormData {
+    fullName: string;
+    phone: string;
+    deliveryDate: string;
     deliveryType: DeliveryType;
-    setDeliveryType: (type: DeliveryType) => void;
+    deliveryAddress: string;
+    orderNote: string;
 }
 
-export function CheckoutForm({ deliveryType, setDeliveryType }: CheckoutFormProps) {
+interface CheckoutFormProps {
+    formData: CheckoutFormData;
+    onChange: <K extends keyof CheckoutFormData>(field: K, value: CheckoutFormData[K]) => void;
+}
+
+export function CheckoutForm({ formData, onChange }: CheckoutFormProps) {
     return (
         <div className="px-4 pb-4">
             <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-3">
@@ -20,13 +29,23 @@ export function CheckoutForm({ deliveryType, setDeliveryType }: CheckoutFormProp
                         <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
                             Full Name
                         </label>
-                        <Input type="text" placeholder="John Doe" />
+                        <Input
+                            type="text"
+                            placeholder="John Doe"
+                            value={formData.fullName}
+                            onChange={(e) => onChange("fullName", e.target.value)}
+                        />
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
                             Phone Number
                         </label>
-                        <Input type="tel" placeholder="+1 (555) 000-0000" />
+                        <Input
+                            type="tel"
+                            placeholder="+1 (555) 000-0000"
+                            value={formData.phone}
+                            onChange={(e) => onChange("phone", e.target.value)}
+                        />
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
@@ -35,6 +54,8 @@ export function CheckoutForm({ deliveryType, setDeliveryType }: CheckoutFormProp
                         <Input
                             type="date"
                             icon={<Icon name="calendar_today" className="text-[20px]" />}
+                            value={formData.deliveryDate}
+                            onChange={(e) => onChange("deliveryDate", e.target.value)}
                         />
                     </div>
                 </div>
@@ -49,8 +70,8 @@ export function CheckoutForm({ deliveryType, setDeliveryType }: CheckoutFormProp
                                 type="radio"
                                 name="delivery_type"
                                 className="peer sr-only"
-                                checked={deliveryType === "delivery"}
-                                onChange={() => setDeliveryType("delivery")}
+                                checked={formData.deliveryType === "delivery"}
+                                onChange={() => onChange("deliveryType", "delivery")}
                             />
                             <div className="flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-medium text-zinc-500 dark:text-white/60 transition-all peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:font-bold">
                                 Delivery
@@ -61,8 +82,8 @@ export function CheckoutForm({ deliveryType, setDeliveryType }: CheckoutFormProp
                                 type="radio"
                                 name="delivery_type"
                                 className="peer sr-only"
-                                checked={deliveryType === "pickup"}
-                                onChange={() => setDeliveryType("pickup")}
+                                checked={formData.deliveryType === "pickup"}
+                                onChange={() => onChange("deliveryType", "pickup")}
                             />
                             <div className="flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-medium text-zinc-500 dark:text-white/60 transition-all peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:font-bold">
                                 Pickup
@@ -71,7 +92,7 @@ export function CheckoutForm({ deliveryType, setDeliveryType }: CheckoutFormProp
                     </div>
                 </div>
 
-                {deliveryType === "delivery" ? (
+                {formData.deliveryType === "delivery" ? (
                     <div>
                         <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
                             Delivery Address
@@ -80,6 +101,8 @@ export function CheckoutForm({ deliveryType, setDeliveryType }: CheckoutFormProp
                             type="text"
                             placeholder="Street, house, apt..."
                             icon={<Icon name="location_on" className="text-[20px]" />}
+                            value={formData.deliveryAddress}
+                            onChange={(e) => onChange("deliveryAddress", e.target.value)}
                         />
                     </div>
                 ) : (
@@ -110,6 +133,8 @@ export function CheckoutForm({ deliveryType, setDeliveryType }: CheckoutFormProp
                     <textarea
                         rows={2}
                         placeholder="Leave a note for the florist..."
+                        value={formData.orderNote}
+                        onChange={(e) => onChange("orderNote", e.target.value)}
                         className="w-full bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-primary dark:text-white placeholder:text-gray-400 resize-none"
                     ></textarea>
                 </div>

@@ -1,16 +1,30 @@
 import { useState } from "react";
 import { clsx } from "clsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
+import { api } from "../lib/api";
 import { Icon } from "../components/ui/Icon";
 import { Modal } from "../components/ui/Modal";
 import { BasketItem } from "../components/BasketItem";
-import { CheckoutForm } from "../components/CheckoutForm";
+import { CheckoutForm, CheckoutFormData } from "../components/CheckoutForm";
 
 export default function Basket() {
-  const { basket, basketCount, basketTotal, updateQuantity, removeFromBasket } = useAppContext();
-  const [deliveryType, setDeliveryType] = useState<"delivery" | "pickup">("delivery");
+  const { basket, basketCount, basketTotal, updateQuantity, removeFromBasket, clearBasket } = useAppContext();
+  const [formData, setFormData] = useState<CheckoutFormData>({
+    fullName: "",
+    phone: "",
+    deliveryDate: "",
+    deliveryType: "delivery",
+    deliveryAddress: "",
+    orderNote: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<number | null>(null);
+  const navigate = useNavigate();
+
+  const handleFormChange = <K extends keyof CheckoutFormData>(field: K, value: CheckoutFormData[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleMinus = (id: number, currentQuantity: number) => {
     if (currentQuantity === 1) {
@@ -27,9 +41,41 @@ export default function Basket() {
     }
   };
 
+  const isFormValid =
+    formData.fullName.trim() !== "" &&
+    formData.phone.trim() !== "" &&
+    formData.deliveryDate.trim() !== "" &&
+    (formData.deliveryType === "pickup" || formData.deliveryAddress.trim() !== "");
+
+  const handleSubmitOrder = async () => {
+    if (!isFormValid || basket.length === 0) return;
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        customer_notes: formData.orderNote,
+        delivery_type: formData.deliveryType === "delivery" ? "DELIVERY" : "PICKUP",
+        delivery_address: formData.deliveryType === "delivery" ? formData.deliveryAddress : null,
+        delivery_date: new Date(formData.deliveryDate).toISOString(),
+        items: basket.map((item) => ({
+          bouquet_id: item.id,
+          unit_price: item.price,
+          item_quantity: item.quantity,
+        })),
+      };
+      await api.createOrder(payload);
+      clearBasket();
+      navigate("/orders");
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      alert("Something went wrong while placing your order. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col w-full h-full pb-40">
-      <header className="sticky top-0 z-50 flex items-center bg-white/90 dark:bg-background-dark/90 backdrop-blur-md p-4 pb-2 justify-between border-b border-zinc-100 dark:border-white/10">
+    <div className="relative flex flex-col w-full h-full pb-40 pt-16">
+      <header className="fixed w-full top-0 left-0 z-50 flex items-center bg-white/90 dark:bg-background-dark/90 backdrop-blur-md p-4 pb-2 justify-between border-b border-zinc-100 dark:border-white/10">
         <Link
           to="/shop"
           className="text-zinc-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10"
@@ -61,7 +107,7 @@ export default function Basket() {
         ) : (
           basket.map((item) => (
             <BasketItem
-              key={item.bouquet_id}
+              key={item.id}
               item={item}
               onRemove={setItemToRemove}
               onMinus={handleMinus}
@@ -71,10 +117,12 @@ export default function Basket() {
         )}
       </div>
 
-      <CheckoutForm
-        deliveryType={deliveryType}
-        setDeliveryType={setDeliveryType}
-      />
+      <div className="flex-1 overflow-y-auto w-full max-w-lg mx-auto bg-surface-light dark:bg-background-dark pb-32">
+        <CheckoutForm
+          formData={formData}
+          onChange={handleFormChange}
+        />
+      </div>
 
       <div className="fixed bottom-[72px] left-0 right-0 z-40 bg-white/90 dark:bg-background-dark/95 backdrop-blur-md border-t border-zinc-100 dark:border-white/10 px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         <div className="flex justify-between items-center mb-4">
@@ -85,18 +133,19 @@ export default function Basket() {
             ${basketTotal.toFixed(2)}
           </span>
         </div>
-        <Link
-          to="/orders"
+        <button
+          onClick={handleSubmitOrder}
+          disabled={!isFormValid || basket.length === 0 || isSubmitting}
           className={clsx(
             "w-full font-bold py-3.5 rounded-xl shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2",
-            basket.length > 0
+            isFormValid && basket.length > 0 && !isSubmitting
               ? "bg-primary hover:bg-primary/90 text-white shadow-primary/30"
               : "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 pointer-events-none shadow-none"
           )}
         >
-          <span>Complete Order</span>
-          <Icon name="arrow_forward" className="text-lg" />
-        </Link>
+          <span>{isSubmitting ? "Processing..." : "Complete Order"}</span>
+          {!isSubmitting && <Icon name="arrow_forward" className="text-lg" />}
+        </button>
       </div>
 
       <Modal

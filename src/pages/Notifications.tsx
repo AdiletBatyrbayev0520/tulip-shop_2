@@ -57,8 +57,8 @@ export default function Notifications() {
   ];
 
   return (
-    <div className="flex flex-col w-full h-full pb-24">
-      <header className="sticky top-0 z-40 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl px-6 pt-14 pb-4 border-b border-zinc-100 dark:border-zinc-800">
+    <div className="relative flex flex-col w-full h-full pb-24 pt-[110px]">
+      <header className="fixed w-full top-0 left-0 z-40 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl px-6 pt-14 pb-4 border-b border-zinc-100 dark:border-zinc-800">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Link

@@ -13,13 +13,12 @@ export const handleGoogleSignIn = (pendingItem?: Bouquet | null) => {
 
 export const api = {
     // Catalog
-    getBouquets: async (params?: { color?: string; min_flower_quantity?: number; max_flower_quantity?: number }): Promise<Bouquet[]> => {
+    getBouquets: async (params?: { color?: string; flower_quantity?: number; }): Promise<Bouquet[]> => {
         let url = `${API_BASE_URL}/bouquets`;
         if (params) {
             const queryParams = new URLSearchParams();
             if (params.color && params.color !== "All Flowers") queryParams.append("color", params.color);
-            if (params.min_flower_quantity) queryParams.append("min_flower_quantity", params.min_flower_quantity.toString());
-            if (params.max_flower_quantity) queryParams.append("max_flower_quantity", params.max_flower_quantity.toString());
+            if (params.flower_quantity) queryParams.append("flower_quantity", params.flower_quantity.toString());
 
             const queryString = queryParams.toString();
             if (queryString) {

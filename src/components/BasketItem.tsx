@@ -27,7 +27,7 @@ export const BasketItem: React.FC<BasketItemProps> = ({ item, onRemove, onMinus,
                         </p>
                     </div>
                     <button
-                        onClick={() => onRemove(item.bouquet_id)}
+                        onClick={() => onRemove(item.id)}
                         className="text-zinc-400 dark:text-white/40 hover:text-red-500 transition-colors"
                     >
                         <Icon name="delete" className="text-xl" />
@@ -37,7 +37,7 @@ export const BasketItem: React.FC<BasketItemProps> = ({ item, onRemove, onMinus,
                     <p className="text-primary font-bold text-lg">${item.price}</p>
                     <div className="flex items-center bg-background-light dark:bg-white/10 rounded-lg p-1 gap-3">
                         <button
-                            onClick={() => onMinus(item.bouquet_id, item.quantity)}
+                            onClick={() => onMinus(item.id, item.quantity)}
                             className="w-6 h-6 flex items-center justify-center bg-white dark:bg-white/10 rounded text-zinc-900 dark:text-white shadow-sm active:scale-95"
                         >
                             <Icon name="remove" className="text-xs font-bold" />
@@ -46,7 +46,7 @@ export const BasketItem: React.FC<BasketItemProps> = ({ item, onRemove, onMinus,
                             {item.quantity}
                         </span>
                         <button
-                            onClick={() => onPlus(item.bouquet_id, 1)}
+                            onClick={() => onPlus(item.id, 1)}
                             className="w-6 h-6 flex items-center justify-center bg-primary rounded text-white shadow-sm active:scale-95"
                         >
                             <Icon name="add" className="text-xs font-bold" />

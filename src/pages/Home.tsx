@@ -14,7 +14,7 @@ export default function Home() {
     const fetchTrending = async () => {
       try {
         // Fetch a generalized list; in a real app, you might have a dedicated /trending endpoint
-        const data = await api.getBouquets({ max_flower_quantity: 21 });
+        const data = await api.getBouquets();
         if (isMounted) setTrendingBouquets(data.slice(0, 4)); // Get first 4
       } catch (error) {
         console.error("Failed to fetch trending bouquets", error);
@@ -97,7 +97,7 @@ export default function Home() {
               </div>
             ))
           ) : trendingBouquets.map((bouquet) => (
-            <div key={bouquet.bouquet_id}>
+            <div key={bouquet.id}>
               <BouquetCard
                 bouquet={bouquet}
                 variant="trending"

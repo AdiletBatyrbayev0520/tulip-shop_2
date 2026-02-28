@@ -41,8 +41,8 @@ export default function OrderDetails() {
   // Fallback when order isn't found
   if (!order) {
     return (
-      <div className="flex flex-col w-full h-full pb-20">
-        <header className="sticky top-0 z-40 flex items-center bg-white/80 dark:bg-background-dark/80 backdrop-blur-md p-4 border-b border-zinc-100 dark:border-white/10">
+      <div className="relative flex flex-col w-full h-full pb-20 pt-[80px]">
+        <header className="fixed w-full top-0 left-0 z-40 flex items-center bg-white/80 dark:bg-background-dark/80 backdrop-blur-md p-4 border-b border-zinc-100 dark:border-white/10">
           <Link
             to="/orders"
             className="flex size-10 items-center justify-center rounded-full bg-zinc-100 dark:bg-white/5 active:scale-95 transition-transform text-zinc-900 dark:text-white"
@@ -69,8 +69,8 @@ export default function OrderDetails() {
   const isPickup = order?.delivery_type === "pickup";
 
   return (
-    <div className="flex flex-col w-full h-full pb-24">
-      <header className="sticky top-0 z-40 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl px-6 pt-14 pb-4 border-b border-zinc-100 dark:border-zinc-800/50">
+    <div className="relative flex flex-col w-full h-full pb-24 pt-[110px]">
+      <header className="fixed w-full top-0 left-0 z-40 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl px-6 pt-14 pb-4 border-b border-zinc-100 dark:border-zinc-800/50">
         <div className="flex items-center gap-4">
           <Link
             to="/orders"

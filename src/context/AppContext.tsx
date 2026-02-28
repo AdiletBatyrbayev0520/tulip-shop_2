@@ -10,8 +10,9 @@ interface AppContextType {
   setUser: (user: User | null) => void;
   basket: BasketItem[];
   addToBasket: (item: Bouquet) => void;
-  removeFromBasket: (bouquet_id: number) => void;
+  removeFromBasket: (id: number) => void;
   updateQuantity: (id: number, delta: number) => void;
+  clearBasket: () => void;
   basketCount: number;
   basketTotal: number;
 }
@@ -40,10 +41,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addToBasket = (item: Bouquet) => {
     setBasket((prev) => {
-      const existing = prev.find((i) => i.bouquet_id === item.bouquet_id);
+      const existing = prev.find((i) => i.id === item.id);
       if (existing) {
         return prev.map((i) =>
-          i.bouquet_id === item.bouquet_id ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
       return [...prev, { ...item, quantity: 1 }];
@@ -51,13 +52,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromBasket = (id: number) => {
-    setBasket((prev) => prev.filter((i) => i.bouquet_id !== id));
+    setBasket((prev) => prev.filter((i) => i.id !== id));
+  };
+
+  const clearBasket = () => {
+    setBasket([]);
   };
 
   const updateQuantity = (id: number, delta: number) => {
     setBasket((prev) =>
       prev.map((i) => {
-        if (i.bouquet_id === id) {
+        if (i.id === id) {
           const newQuantity = i.quantity + delta;
           return { ...i, quantity: newQuantity > 0 ? newQuantity : 1 };
         }
@@ -82,6 +87,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         basket,
         addToBasket,
         removeFromBasket,
+        clearBasket,
         updateQuantity,
         basketCount,
         basketTotal,
