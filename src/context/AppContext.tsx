@@ -11,9 +11,18 @@ export type Bouquet = {
 
 export type BasketItem = Bouquet & { quantity: number };
 
+export type User = {
+  id: string;
+  email: string;
+  full_name: string;
+  avatar_url: string;
+};
+
 interface AppContextType {
   isLoggedIn: boolean;
   setIsLoggedIn: (value: boolean) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   basket: BasketItem[];
   addToBasket: (item: Bouquet) => void;
   removeFromBasket: (id: number) => void;
@@ -25,7 +34,23 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUserState] = useState<User | null>(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [isLoggedIn, setIsLoggedIn] = useState(!!user);
+  
+  const setUser = (newUser: User | null) => {
+    setUserState(newUser);
+    if (newUser) {
+      localStorage.setItem('user', JSON.stringify(newUser));
+      setIsLoggedIn(true);
+    } else {
+      localStorage.removeItem('user');
+      setIsLoggedIn(false);
+    }
+  };
+
   const [basket, setBasket] = useState<BasketItem[]>([]);
 
   const addToBasket = (item: Bouquet) => {
@@ -67,6 +92,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       value={{
         isLoggedIn,
         setIsLoggedIn,
+        user,
+        setUser,
         basket,
         addToBasket,
         removeFromBasket,

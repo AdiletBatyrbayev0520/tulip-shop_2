@@ -1,7 +1,34 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useAppContext } from "../context/AppContext";
 
 export default function Profile() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, user, setUser } = useAppContext();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const userInfo = params.get("user_info");
+
+    if (userInfo) {
+      try {
+        const decodedString = decodeURIComponent(userInfo);
+        const jsonString = atob(decodedString);
+        const userData = JSON.parse(jsonString);
+        setUser(userData);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (error) {
+        console.error("Failed to parse user info from URL", error);
+      }
+    }
+  }, [setUser]);
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8000/auth/google/login";
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+  };
+
 
   if (!isLoggedIn) {
     return (
@@ -47,7 +74,7 @@ export default function Profile() {
 
               <div className="pt-2 relative z-10">
                 <button
-                  onClick={() => setIsLoggedIn(true)}
+                  onClick={handleGoogleLogin}
                   className="w-full bg-white dark:bg-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-600 text-zinc-700 dark:text-white font-medium py-3.5 px-4 rounded-xl border border-zinc-200 dark:border-zinc-600 shadow-sm transition-all flex items-center justify-center gap-3"
                 >
                   <svg
@@ -90,18 +117,24 @@ export default function Profile() {
         <div className="flex flex-col items-center">
           <div className="relative mb-4">
             <div className="w-24 h-24 rounded-full p-1 border-2 border-primary/20">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKXApum7CVnzWye8UbsaepR9nq-mcI8a0Gx6X5mRn4SsYrXaudxPEE0f6YoZv_Mxl41DpsUCB3N5iMfGT7uI-OhmSRxhzfraNRo-v5mBShb2pAyBxM7yJaKz2Dk6odl1RCkM3qBL_acLe_StAa5KMbEAb3cTNne7s3GKGZn92cpevikqJHthuQvBoKMGuZ7bLfSi4_HRF6nv2sdToKMJha3siuvoFZa66jnMpLmrg25C-tO7X5fA8-tVyGO5KKnWSTdxpwq2bX62U"
-                alt="User Avatar"
-                className="w-full h-full rounded-full object-cover shadow-sm"
-              />
+              {user?.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt={user.full_name || "User Avatar"}
+                  className="w-full h-full rounded-full object-cover shadow-sm"
+                />
+              ) : (
+                <span className="material-symbols-outlined text-zinc-300 dark:text-zinc-600 text-5xl">
+                  person
+                </span>
+              )}
             </div>
             <button className="absolute bottom-1 right-1 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-md hover:bg-pink-600 transition-colors">
               <span className="material-symbols-outlined text-sm">edit</span>
             </button>
           </div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
-            Sarah Anderson
+            {user?.full_name || "Guest User"}
           </h1>
           <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 px-4 py-1.5 rounded-full border border-amber-200 dark:border-amber-700/50 shadow-[0_0_15px_rgba(255,215,0,0.3)]">
             <span className="material-symbols-outlined text-amber-500 text-lg">
@@ -169,7 +202,7 @@ export default function Profile() {
                 </span>
                 <input
                   type="text"
-                  defaultValue="Sarah Anderson"
+                  defaultValue={user?.full_name || ""}
                   className="bg-transparent border-none p-0 w-full focus:ring-0 text-zinc-900 dark:text-white font-medium text-sm"
                 />
                 <span className="material-symbols-outlined text-zinc-300 text-sm">
@@ -179,20 +212,18 @@ export default function Profile() {
             </div>
             <div className="group">
               <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
-                Phone
+                Email
               </label>
               <div className="flex items-center border-b border-zinc-200 dark:border-zinc-700 pb-2 focus-within:border-primary transition-colors">
                 <span className="material-symbols-outlined text-zinc-400 text-lg mr-3">
-                  phone
+                  email
                 </span>
                 <input
-                  type="tel"
-                  defaultValue="+1 (555) 123-4567"
+                  type="email"
+                  defaultValue={user?.email || ""}
                   className="bg-transparent border-none p-0 w-full focus:ring-0 text-zinc-900 dark:text-white font-medium text-sm"
+                  readOnly
                 />
-                <span className="material-symbols-outlined text-zinc-300 text-sm">
-                  edit
-                </span>
               </div>
             </div>
             <div className="group">
@@ -222,7 +253,7 @@ export default function Profile() {
           </h2>
           <div className="bg-white dark:bg-surface-dark rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700/50 overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-700/50">
             <button
-              onClick={() => setIsLoggedIn(false)}
+              onClick={handleLogout}
               className="w-full flex items-center justify-between px-5 py-4 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group text-left"
             >
               <div className="flex items-center space-x-3">
