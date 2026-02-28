@@ -149,12 +149,13 @@ export default function Shop() {
           </div>
         ) : (
           bouquets.map((bouquet) => (
-            <BouquetCard
-              key={bouquet.bouquet_id}
-              bouquet={bouquet}
-              variant="shop"
-              onBuy={handleBuy}
-            />
+            <div key={bouquet.bouquet_id}>
+              <BouquetCard
+                bouquet={bouquet}
+                variant="shop"
+                onBuy={handleBuy}
+              />
+            </div>
           ))
         )}
       </div>

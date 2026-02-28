@@ -97,11 +97,12 @@ export default function Home() {
               </div>
             ))
           ) : trendingBouquets.map((bouquet) => (
-            <BouquetCard
-              key={bouquet.bouquet_id}
-              bouquet={bouquet}
-              variant="trending"
-            />
+            <div key={bouquet.bouquet_id}>
+              <BouquetCard
+                bouquet={bouquet}
+                variant="trending"
+              />
+            </div>
           ))}
         </div>
       </section>
