@@ -3,6 +3,7 @@ import { useAppContext } from "../context/AppContext";
 import { Icon } from "../components/ui/Icon";
 import { Input } from "../components/ui/Input";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
+import { handleGoogleSignIn } from "../lib/api";
 
 export default function Profile() {
   const { isLoggedIn, user, setUser, addToBasket } = useAppContext();
@@ -33,7 +34,7 @@ export default function Profile() {
   }, [setUser, addToBasket]);
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8000/auth/google/login";
+    handleGoogleSignIn();
   };
 
   const handleLogout = () => {

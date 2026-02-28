@@ -1,6 +1,61 @@
 import { Link } from "react-router-dom";
+import { NotificationItem, Notification } from "../components/NotificationItem";
 
 export default function Notifications() {
+  const todayNotifications: Notification[] = [
+    {
+      id: "1",
+      title: "Order Shipped!",
+      message: 'Your bouquet "Velvet Crimson" is on its way via delivery service.',
+      time: "2h ago",
+      iconName: "local_florist",
+      type: "delivery",
+      isRead: false,
+    },
+    {
+      id: "2",
+      title: "Spring Sale 🌷",
+      message: "Get 20% off all yellow tulips this weekend. Use code SPRING20.",
+      time: "5h ago",
+      iconName: "local_offer",
+      type: "offer",
+      isRead: false,
+    },
+  ];
+
+  const yesterdayNotifications: Notification[] = [
+    {
+      id: "3",
+      title: "Order Delivered",
+      message: "Order #TLP-8829 has been successfully delivered to the recipient.",
+      time: "1d ago",
+      iconName: "check_circle",
+      type: "success",
+      isRead: true,
+    },
+    {
+      id: "4",
+      title: "Double Points",
+      message: "You earned double loyalty points on your recent purchase!",
+      time: "1d ago",
+      iconName: "loyalty",
+      type: "points",
+      isRead: true,
+    },
+  ];
+
+  const pastNotifications: Notification[] = [
+    {
+      id: "5",
+      title: "App Update",
+      message: "We've updated our privacy policy and terms of service.",
+      time: "5d ago",
+      iconName: "security_update_good",
+      type: "system",
+      isRead: true,
+    },
+  ];
+
   return (
     <div className="flex flex-col w-full h-full pb-24">
       <header className="sticky top-0 z-40 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl px-6 pt-14 pb-4 border-b border-zinc-100 dark:border-zinc-800">
@@ -30,53 +85,9 @@ export default function Notifications() {
             Today
           </h2>
           <div className="space-y-4">
-            <div className="bg-primary-light/30 dark:bg-primary/10 rounded-2xl p-4 shadow-sm border border-primary/10 dark:border-primary/20 relative overflow-hidden">
-              <div className="absolute top-4 right-4 w-2 h-2 bg-primary rounded-full"></div>
-              <div className="flex gap-4 items-start">
-                <div className="w-12 h-12 flex-shrink-0 rounded-full bg-surface-light dark:bg-surface-dark flex items-center justify-center text-primary shadow-sm">
-                  <span className="material-symbols-outlined">
-                    local_florist
-                  </span>
-                </div>
-                <div className="flex-1 pr-4">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-                      Order Shipped!
-                    </h3>
-                    <span className="text-xs text-zinc-400 font-medium whitespace-nowrap ml-2">
-                      2h ago
-                    </span>
-                  </div>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                    Your bouquet "Velvet Crimson" is on its way via delivery
-                    service.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft border border-zinc-50 dark:border-zinc-800 relative">
-              <div className="absolute top-4 right-4 w-2 h-2 bg-primary rounded-full"></div>
-              <div className="flex gap-4 items-start">
-                <div className="w-12 h-12 flex-shrink-0 rounded-full bg-accent-green/10 flex items-center justify-center text-accent-green">
-                  <span className="material-symbols-outlined">local_offer</span>
-                </div>
-                <div className="flex-1 pr-4">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-                      Spring Sale 🌷
-                    </h3>
-                    <span className="text-xs text-zinc-400 font-medium whitespace-nowrap ml-2">
-                      5h ago
-                    </span>
-                  </div>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                    Get 20% off all yellow tulips this weekend. Use code
-                    SPRING20.
-                  </p>
-                </div>
-              </div>
-            </div>
+            {todayNotifications.map((notif) => (
+              <NotificationItem key={notif.id} notification={notif} />
+            ))}
           </div>
         </section>
 
@@ -85,50 +96,9 @@ export default function Notifications() {
             Yesterday
           </h2>
           <div className="space-y-4">
-            <div className="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft border border-zinc-50 dark:border-zinc-800 opacity-80">
-              <div className="flex gap-4 items-start">
-                <div className="w-12 h-12 flex-shrink-0 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
-                  <span className="material-symbols-outlined">
-                    check_circle
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-                      Order Delivered
-                    </h3>
-                    <span className="text-xs text-zinc-400 font-medium whitespace-nowrap ml-2">
-                      1d ago
-                    </span>
-                  </div>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                    Order #TLP-8829 has been successfully delivered to the
-                    recipient.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft border border-zinc-50 dark:border-zinc-800 opacity-80">
-              <div className="flex gap-4 items-start">
-                <div className="w-12 h-12 flex-shrink-0 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
-                  <span className="material-symbols-outlined">loyalty</span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-                      Double Points
-                    </h3>
-                    <span className="text-xs text-zinc-400 font-medium whitespace-nowrap ml-2">
-                      1d ago
-                    </span>
-                  </div>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                    You earned double loyalty points on your recent purchase!
-                  </p>
-                </div>
-              </div>
-            </div>
+            {yesterdayNotifications.map((notif) => (
+              <NotificationItem key={notif.id} notification={notif} />
+            ))}
           </div>
         </section>
 
@@ -137,28 +107,9 @@ export default function Notifications() {
             Last Week
           </h2>
           <div className="space-y-4">
-            <div className="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft border border-zinc-50 dark:border-zinc-800 opacity-60">
-              <div className="flex gap-4 items-start">
-                <div className="w-12 h-12 flex-shrink-0 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
-                  <span className="material-symbols-outlined">
-                    security_update_good
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-                      App Update
-                    </h3>
-                    <span className="text-xs text-zinc-400 font-medium whitespace-nowrap ml-2">
-                      5d ago
-                    </span>
-                  </div>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                    We've updated our privacy policy and terms of service.
-                  </p>
-                </div>
-              </div>
-            </div>
+            {pastNotifications.map((notif) => (
+              <NotificationItem key={notif.id} notification={notif} />
+            ))}
           </div>
         </section>
       </main>

@@ -1,77 +1,49 @@
 import { useState } from "react";
 import { clsx } from "clsx";
 import { Link } from "react-router-dom";
-import { useAppContext, Bouquet } from "../context/AppContext";
+import { useAppContext } from "../context/AppContext";
+import { Bouquet } from "../types";
 import { Icon } from "../components/ui/Icon";
 import { Modal } from "../components/ui/Modal";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
+import { BouquetCard } from "../components/BouquetCard";
 
-const BOUQUETS = [
-  {
-    id: 1,
-    name: "51 Pink Parrots",
-    price: 89,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDnxf9EwEeSfiRuSoF0RrAsOMw3tz0yx968qWZeJu2xRUkb4eUxqGVwk3pLh4VlYsk7aQXTyu8qCBgCtBn-WkfivND-8EiA_ZAv0u84tgvPXYyu0q0lC70oGV8kEWV_cSY0O2OOBvOUsKBkPc0VOjlD6iIv2khn0HHblPqYJfQ_gxeyQktrAn-cKopXE2xrXoXS62T6vKI4FNPAKhOpZ-mAcKcDF181US4MMHOJELr1PfYPT_pF7gwtxDHmvHTYkGIxyQFKCmRvJU4",
-    color: "Pink",
-    count: 51,
-  },
-  {
-    id: 2,
-    name: "21 Red Emperors",
-    price: 65,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDn7D6hvxC7LL6BHwiQs4KwSmyfVfuVZsKCqoJnUq4n9jUOLfj9B0KnkczVOu3tNir7RfirYLmYj6vlje-IkDVm50dttyT19oqvj27d6K2JUVCBYOa8CCNf5sa2P5B_BL6O5s0HWM9oz8jud1BQQzSzKAjaVCUvwIElnadPwTChvrQbYJRUbq_RTHv-DZr7ufIJYkQOAOYpWIhbMGCXB-hcpPYamQNZAywriEkaumCRtj2RBJ68WEjUkxXfUJgVg_oCVls5onHwNTg",
-    color: "Red",
-    count: 21,
-  },
-  {
-    id: 3,
-    name: "11 Yellow Suns",
-    price: 75,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDv2Hxth85v8SnzT4Id3br6wma1uU3JPaYjOXAUHYxGONaWDzqVX-LxYxJlXYyGBEasHtVZ9gJ4QfgEGAE54yNUX3c8ENNVXbNP-OACkbav6lBZJ30Txk_swjxulWYU2MYEev_yi9x8GE1vkYTaeUZ1TXSqraRj6bUuOqiysRQRN23qAc70f6SVsgufpqqPTezRMAkJSbt5j6V6KGQMiL1tHUcCCW5MyFhkyE3Pf8noNSGq15qHkipqWmRA4h2RP9c-refgYbqVqfk",
-    color: "Yellow",
-    count: 11,
-  },
-  {
-    id: 4,
-    name: "5 White Lilies",
-    price: 49,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCzJ6Ke-BgrxX50HJtQtBc_kr-DptlNXAGSaZCuJE_7OtBG4c22AHx6TezGqGXJD6bRfFEBXOJC_KN9a_4m9eil2TNk-8yGGnSwHEp8a8xEEV2EX3-l1Rt_kx8Lwroi4hTA1zoRyLov60Ca-xiE-jIo9R0Tlc_SITwgoXNy5K0Uqd9yXKYb-Zky9W6XSMjS2St916RhjvF4wqu4oybQCvtQAdVhBttcFdgrjT5CnfwS32cScTcrO2Ts-OlIg6cJwQEAQmI3DsJ7UzI",
-    color: "Mixed",
-    count: 5,
-  },
-  {
-    id: 5,
-    name: "51 Purple Dreams",
-    price: 95,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCtPu93wHcp6pYOO2W-9A53eWhHQ28I7_dQ_Wd-P6xyUHSThYFcnuH9VH15YFq7hD5tVSZmE3GS1gOXAhTbkXgGMLMeX0rrNlikfFu5F8xuHuUqMxubSb6e-DRzAEncaRB-E7Yu_jhuTjTV7fuxubQPz5_5Ej_y4VmzlmpZej1pRfsxzn8hzqVryBrM3LXHUwmupMAYtpewx2EX3Zmfw3-O7WSrVx2BOpTvUWoY7YUE1EfxdCVAbjDcFkfO2fkqDUyVF0lTHujWMxc",
-    color: "Mixed",
-    count: 51,
-  },
-  {
-    id: 6,
-    name: "101 Mixed Joy",
-    price: 150,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuATCALdBLQFYdhNjnenCriTU68qXmRE9PSFp1OLdmPgyhD5jpvIHU1DmG60zsNuhDTi-m7lyoIdwuPNjxd-sT569SPYWYdchKm13aFwUclC_nL_fNzxM1ozmToLAExIcqRoeajHL2E0q2r742xQhHDPTzDWsjsvtlOcyfFzadpz_BpYJpx-IurD1gUshNF7jgRGYXnRXTXOzfGyILjv2wWq-5n8yYlUPgi9XQGCDU6NjcOU0Oxaso8bJaEsuwZtF7VSDPc-DJjw1E0",
-    color: "Mixed",
-    count: 101,
-  },
-];
+import { api, handleGoogleSignIn } from "../lib/api";
 
-const COLORS = ["All Flowers", "Red", "Yellow", "Pink", "Mixed"];
+import { useEffect } from "react";
+
+const COLORS = ["All Flowers", "Red", "Yellow", "Pink", "Mixed", "White", "Purple"];
 const COUNTS = [5, 11, 21, 51, 101];
 
 export default function Shop() {
-  const { isLoggedIn, setIsLoggedIn, addToBasket, basketCount } = useAppContext();
+  const { isLoggedIn, addToBasket, basketCount } = useAppContext();
+  const [bouquets, setBouquets] = useState<Bouquet[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState("All Flowers");
   const [selectedCount, setSelectedCount] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingItem, setPendingItem] = useState<Bouquet | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchBouquets = async () => {
+      setIsLoading(true);
+      try {
+        const data = await api.getBouquets({
+          color: selectedColor === "All Flowers" ? undefined : selectedColor,
+          min_flower_quantity: selectedCount || undefined,
+          max_flower_quantity: selectedCount || undefined,
+        });
+        if (isMounted) setBouquets(data);
+      } catch (error) {
+        console.error("Failed to fetch bouquets:", error);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+    fetchBouquets();
+    return () => { isMounted = false; };
+  }, [selectedColor, selectedCount]);
 
   const handleBuy = (bouquet: Bouquet) => {
     if (isLoggedIn) {
@@ -83,19 +55,8 @@ export default function Shop() {
   };
 
   const handleSignIn = () => {
-    if (pendingItem) {
-      localStorage.setItem("pendingCartItem", JSON.stringify(pendingItem));
-    }
-    window.location.href = "http://localhost:8000/auth/google/login";
+    handleGoogleSignIn(pendingItem);
   };
-
-  const filteredBouquets = BOUQUETS.filter((b) => {
-    if (selectedColor !== "All Flowers" && b.color !== selectedColor)
-      return false;
-    if (selectedCount !== null && b.count !== selectedCount)
-      return false;
-    return true;
-  });
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -164,33 +125,38 @@ export default function Shop() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 p-4">
-        {filteredBouquets.map((bouquet) => (
-          <div
-            key={bouquet.id}
-            className="flex flex-col gap-3 pb-4 bg-white dark:bg-white/5 rounded-2xl overflow-hidden shadow-sm border border-zinc-100 dark:border-white/10"
-          >
-            <div
-              className="w-full bg-center bg-no-repeat aspect-[4/5] bg-cover"
-              style={{ backgroundImage: `url("${bouquet.image}")` }}
-            ></div>
-            <div className="px-3 pb-3 flex flex-col gap-1">
-              <p className="text-zinc-900 dark:text-white text-[15px] font-bold leading-tight">
-                {bouquet.name}
-              </p>
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-primary text-base font-bold">
-                  ${bouquet.price}
-                </p>
-                <button
-                  onClick={() => handleBuy(bouquet)}
-                  className="bg-primary text-white rounded-lg px-3 py-1.5 text-xs font-bold active:scale-95 transition-transform"
-                >
-                  Buy
-                </button>
+        {isLoading ? (
+          Array(4)
+            .fill(0)
+            .map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-3 pb-4 bg-white dark:bg-white/5 rounded-2xl overflow-hidden shadow-sm border border-zinc-100 dark:border-white/10 animate-pulse"
+              >
+                <div className="w-full bg-zinc-200 dark:bg-zinc-800 aspect-[4/5]" />
+                <div className="px-3 pb-3 flex flex-col gap-2">
+                  <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4" />
+                  <div className="flex justify-between mt-1">
+                    <div className="h-5 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3" />
+                    <div className="h-6 bg-zinc-200 dark:bg-zinc-800 rounded w-12" />
+                  </div>
+                </div>
               </div>
-            </div>
+            ))
+        ) : bouquets.length === 0 ? (
+          <div className="col-span-2 py-10 text-center text-zinc-500">
+            No bouquets found matching your selection.
           </div>
-        ))}
+        ) : (
+          bouquets.map((bouquet) => (
+            <BouquetCard
+              key={bouquet.bouquet_id}
+              bouquet={bouquet}
+              variant="shop"
+              onBuy={handleBuy}
+            />
+          ))
+        )}
       </div>
 
       <div className="fixed bottom-24 right-4 z-[60] flex flex-col items-end gap-2">
@@ -229,6 +195,6 @@ export default function Shop() {
       >
         <GoogleSignInButton onClick={handleSignIn} variant="solid" />
       </Modal>
-    </div>
+    </div >
   );
 }

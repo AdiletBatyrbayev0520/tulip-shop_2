@@ -1,22 +1,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { Bouquet, BasketItem, User } from '../types';
 
-export type Bouquet = {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  color: string;
-  count: number;
-};
 
-export type BasketItem = Bouquet & { quantity: number };
-
-export type User = {
-  id: string;
-  email: string;
-  full_name: string;
-  avatar_url: string;
-};
 
 interface AppContextType {
   isLoggedIn: boolean;
@@ -25,7 +10,7 @@ interface AppContextType {
   setUser: (user: User | null) => void;
   basket: BasketItem[];
   addToBasket: (item: Bouquet) => void;
-  removeFromBasket: (id: number) => void;
+  removeFromBasket: (bouquet_id: number) => void;
   updateQuantity: (id: number, delta: number) => void;
   basketCount: number;
   basketTotal: number;
@@ -39,7 +24,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : null;
   });
   const [isLoggedIn, setIsLoggedIn] = useState(!!user);
-  
+
   const setUser = (newUser: User | null) => {
     setUserState(newUser);
     if (newUser) {
@@ -55,10 +40,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addToBasket = (item: Bouquet) => {
     setBasket((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
+      const existing = prev.find((i) => i.bouquet_id === item.bouquet_id);
       if (existing) {
         return prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.bouquet_id === item.bouquet_id ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
       return [...prev, { ...item, quantity: 1 }];
@@ -66,13 +51,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromBasket = (id: number) => {
-    setBasket((prev) => prev.filter((i) => i.id !== id));
+    setBasket((prev) => prev.filter((i) => i.bouquet_id !== id));
   };
 
   const updateQuantity = (id: number, delta: number) => {
     setBasket((prev) =>
       prev.map((i) => {
-        if (i.id === id) {
+        if (i.bouquet_id === id) {
           const newQuantity = i.quantity + delta;
           return { ...i, quantity: newQuantity > 0 ? newQuantity : 1 };
         }

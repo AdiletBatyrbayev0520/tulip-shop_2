@@ -1,11 +1,72 @@
 import { Link, useParams } from "react-router-dom";
 import { Icon } from "../components/ui/Icon";
+import { useEffect, useState } from "react";
+import { Order } from "../types";
+import { api } from "../lib/api";
 
 export default function OrderDetails() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const [order, setOrder] = useState<Order | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock logic to show different states based on ID
-  const isPickup = id === "9012";
+  // In a real application, fetch the actual order details by ID
+  useEffect(() => {
+    let isMounted = true;
+    const fetchOrder = async () => {
+      setIsLoading(true);
+      try {
+        // const data = await api.getOrderById(id);
+        // Simulate fetch delay, since backend doesn't have an endpoint for direct order fetching exposed in the previous inspection
+        setTimeout(() => {
+          if (isMounted) setOrder(null); // Simulated null as we don't have the API yet
+          if (isMounted) setIsLoading(false);
+        }, 800);
+      } catch (error) {
+        console.error("Failed to fetch order", error);
+        if (isMounted) setIsLoading(false);
+      }
+    };
+    if (id) fetchOrder();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col w-full h-full pb-20 justify-center items-center">
+        <Icon name="sync" className="animate-spin text-4xl text-primary" />
+        <p className="mt-4 text-zinc-500 font-medium">Loading details...</p>
+      </div>
+    );
+  }
+
+  // Fallback when order isn't found
+  if (!order) {
+    return (
+      <div className="flex flex-col w-full h-full pb-20">
+        <header className="sticky top-0 z-40 flex items-center bg-white/80 dark:bg-background-dark/80 backdrop-blur-md p-4 border-b border-zinc-100 dark:border-white/10">
+          <Link
+            to="/orders"
+            className="flex size-10 items-center justify-center rounded-full bg-zinc-100 dark:bg-white/5 active:scale-95 transition-transform text-zinc-900 dark:text-white"
+          >
+            <Icon name="arrow_back" />
+          </Link>
+          <h2 className="text-zinc-900 dark:text-white text-lg font-bold leading-tight flex-1 text-center pr-10">
+            Order Not Found
+          </h2>
+        </header>
+        <div className="flex-1 flex flex-col justify-center items-center p-6 text-center">
+          <div className="w-16 h-16 bg-zinc-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
+            <Icon name="error_outline" className="text-3xl text-zinc-400" />
+          </div>
+          <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Order Tracking Unavailable</h3>
+          <p className="text-zinc-500 text-sm">We couldn't find details for order #{id}. It may have been completed long ago or the ID is incorrect.</p>
+          <Link to="/orders" className="mt-6 font-bold text-primary">Return to Orders</Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Placeholder values since order structure isn't fully defined yet
+  const isPickup = order?.delivery_type === "pickup";
 
   return (
     <div className="flex flex-col w-full h-full pb-24">
@@ -304,6 +365,6 @@ export default function OrderDetails() {
           </div>
         </section>
       </main>
-    </div>
+    </div >
   );
 }
