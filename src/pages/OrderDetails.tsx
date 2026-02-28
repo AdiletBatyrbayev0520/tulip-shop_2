@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import { Icon } from "../components/ui/Icon";
 
 export default function OrderDetails() {
   const { id } = useParams();
@@ -14,9 +15,7 @@ export default function OrderDetails() {
             to="/orders"
             className="w-10 h-10 -ml-2 rounded-full flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
-            <span className="material-symbols-outlined text-zinc-900 dark:text-white">
-              arrow_back
-            </span>
+            <Icon name="arrow_back" className="text-zinc-900 dark:text-white" />
           </Link>
           <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white flex-1 text-center pr-8">
             {isPickup ? "Pickup Order Details" : "Order Details"}
@@ -38,9 +37,7 @@ export default function OrderDetails() {
             </span>
           </div>
           <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 text-sm">
-            <span className="material-symbols-outlined text-[18px]">
-              calendar_today
-            </span>
+            <Icon name="calendar_today" className="text-[18px]" />
             <span>Placed on Oct 24, 2023</span>
           </div>
         </div>
@@ -127,9 +124,7 @@ export default function OrderDetails() {
               <div className="bg-surface-light dark:bg-surface-dark rounded-[2rem] p-6 shadow-soft border border-zinc-50 dark:border-zinc-800 space-y-4">
                 <div className="flex gap-4 items-start">
                   <div className="w-10 h-10 rounded-full bg-accent-green/10 flex items-center justify-center flex-shrink-0 text-accent-green">
-                    <span className="material-symbols-outlined text-xl">
-                      storefront
-                    </span>
+                    <Icon name="storefront" className="text-xl" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-zinc-400 font-medium uppercase tracking-wide">
@@ -145,9 +140,7 @@ export default function OrderDetails() {
                   </div>
                 </div>
                 <button className="w-full mt-2 py-3 px-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm font-semibold text-zinc-900 dark:text-white transition-colors flex items-center justify-center gap-2">
-                  <span className="material-symbols-outlined text-[18px] text-primary">
-                    map
-                  </span>
+                  <Icon name="map" className="text-[18px] text-primary" />
                   View on Map
                 </button>
               </div>
@@ -161,9 +154,7 @@ export default function OrderDetails() {
                 <div className="bg-surface-light dark:bg-surface-dark rounded-[2rem] p-6 shadow-soft border border-zinc-50 dark:border-zinc-800 space-y-4">
                   <div className="flex gap-4 items-start">
                     <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center flex-shrink-0 text-primary">
-                      <span className="material-symbols-outlined fill text-xl">
-                        person
-                      </span>
+                      <Icon name="person" className="fill text-xl" />
                     </div>
                     <div>
                       <p className="text-xs text-zinc-400 font-medium uppercase tracking-wide">
@@ -176,9 +167,7 @@ export default function OrderDetails() {
                   </div>
                   <div className="flex gap-4 items-start">
                     <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center flex-shrink-0 text-primary">
-                      <span className="material-symbols-outlined fill text-xl">
-                        call
-                      </span>
+                      <Icon name="call" className="fill text-xl" />
                     </div>
                     <div>
                       <p className="text-xs text-zinc-400 font-medium uppercase tracking-wide">
@@ -191,9 +180,7 @@ export default function OrderDetails() {
                   </div>
                   <div className="flex gap-4 items-start">
                     <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center flex-shrink-0 text-primary">
-                      <span className="material-symbols-outlined fill text-xl">
-                        location_on
-                      </span>
+                      <Icon name="location_on" className="fill text-xl" />
                     </div>
                     <div>
                       <p className="text-xs text-zinc-400 font-medium uppercase tracking-wide">
@@ -217,9 +204,7 @@ export default function OrderDetails() {
                   <div className="flex justify-between items-center">
                     <div className="flex gap-4 items-center">
                       <div className="w-10 h-10 rounded-full bg-accent-green/10 flex items-center justify-center flex-shrink-0 text-accent-green">
-                        <span className="material-symbols-outlined fill text-xl">
-                          local_shipping
-                        </span>
+                        <Icon name="local_shipping" className="fill text-xl" />
                       </div>
                       <div>
                         <p className="text-xs text-zinc-400 font-medium uppercase tracking-wide">

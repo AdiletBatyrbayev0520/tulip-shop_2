@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { clsx } from "clsx";
 import { Link } from "react-router-dom";
+import { Icon } from "../components/ui/Icon";
 
 const TABS = ["All Orders", "Ordered", "In Process", "Completed"];
 
@@ -18,9 +19,7 @@ export default function Orders() {
             to="/notifications"
             className="w-10 h-10 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center border border-zinc-100 dark:border-zinc-800"
           >
-            <span className="material-symbols-outlined text-zinc-600 dark:text-zinc-300">
-              notifications
-            </span>
+            <Icon name="notifications" className="text-zinc-600 dark:text-zinc-300" />
           </Link>
         </div>
         <div className="flex overflow-x-auto no-scrollbar gap-3 -mx-2 px-2">

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Icon } from "../components/ui/Icon";
 
 export default function Home() {
   return (
@@ -19,10 +20,10 @@ export default function Home() {
         </h2>
         <div className="flex items-center gap-4">
           <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-all hover:bg-white/30">
-            <span className="material-symbols-outlined">search</span>
+            <Icon name="search" />
           </button>
           <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white transition-all hover:bg-white/30">
-            <span className="material-symbols-outlined">chat</span>
+            <Icon name="chat" />
           </button>
         </div>
       </header>
@@ -41,14 +42,10 @@ export default function Home() {
             className="flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl h-10 bg-primary text-white text-base font-bold transition-transform active:scale-95 shadow-lg shadow-primary/20"
           >
             <span>Shop Now</span>
-            <span className="material-symbols-outlined text-sm">
-              arrow_forward
-            </span>
+            <Icon name="arrow_forward" className="text-sm" />
           </Link>
           <div className="flex items-center justify-center gap-2 text-white/70">
-            <span className="material-symbols-outlined text-sm">
-              local_shipping
-            </span>
+            <Icon name="local_shipping" className="text-sm" />
             <span className="text-[10px] font-medium uppercase tracking-widest">
               Same day delivery available
             </span>
