@@ -23,6 +23,13 @@ export type OrderItem = {
     price: number;
 };
 
+export type UserAddress = {
+    address_id: number;
+    address_name?: string;
+    city_id: number;
+    street_line: string;
+};
+
 export type DeliveryType = "delivery" | "pickup";
 
 export type Order = {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { clsx } from "clsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
@@ -7,21 +7,35 @@ import { Icon } from "../components/ui/Icon";
 import { Modal } from "../components/ui/Modal";
 import { BasketItem } from "../components/BasketItem";
 import { CheckoutForm, CheckoutFormData } from "../components/CheckoutForm";
+import { UserAddress } from "../types";
 
 export default function Basket() {
-  const { basket, basketCount, basketTotal, updateQuantity, removeFromBasket, clearBasket } = useAppContext();
+  const { user, basket, basketCount, basketTotal, updateQuantity, removeFromBasket, clearBasket } = useAppContext();
   const [formData, setFormData] = useState<CheckoutFormData>({
     fullName: "",
     phone: "",
     deliveryDate: "",
     deliveryType: "delivery",
+    addressId: "",
     cityId: "",
     streetLine: "",
     orderNote: "",
   });
+  const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<number | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      api.getUserAddresses(user.id).then(fetchedAddresses => {
+        setAddresses(fetchedAddresses);
+        if (fetchedAddresses.length > 0) {
+          setFormData(prev => ({ ...prev, addressId: fetchedAddresses[0].address_id.toString() }));
+        }
+      }).catch(console.error);
+    }
+  }, [user]);
 
   const handleFormChange = <K extends keyof CheckoutFormData>(field: K, value: CheckoutFormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -46,20 +60,24 @@ export default function Basket() {
     formData.fullName.trim() !== "" &&
     formData.phone.trim() !== "" &&
     formData.deliveryDate.trim() !== "" &&
-    (formData.deliveryType === "pickup" || (formData.cityId !== "" && formData.streetLine.trim() !== ""));
+    (formData.deliveryType === "pickup" ||
+      (formData.addressId !== "new" && formData.addressId !== "") ||
+      (formData.addressId === "new" && formData.cityId !== "" && formData.streetLine.trim() !== ""));
 
   const handleSubmitOrder = async () => {
     if (!isFormValid || basket.length === 0) return;
     setIsSubmitting(true);
     try {
       const payload = {
+        user_id: user?.id || null,
         customer_notes: formData.orderNote,
         delivery_type: formData.deliveryType === "delivery" ? "DELIVERY" : "PICKUP",
-        delivery_address: formData.deliveryType === "delivery" ? {
+        delivery_address: formData.deliveryType === "delivery" && formData.addressId === "new" ? {
           address_name: "Home",
           street_line: formData.streetLine,
           city_id: parseInt(formData.cityId)
         } : null,
+        delivery_address_id: formData.deliveryType === "delivery" && formData.addressId !== "new" && formData.addressId !== "" ? parseInt(formData.addressId) : null,
         delivery_date: new Date(formData.deliveryDate).toISOString(),
         items: basket.map((item) => ({
           bouquet_id: item.id,
@@ -124,6 +142,7 @@ export default function Basket() {
 
       <div className="flex-1 overflow-y-auto w-full max-w-lg mx-auto bg-surface-light dark:bg-background-dark pb-32">
         <CheckoutForm
+          addresses={addresses}
           formData={formData}
           onChange={handleFormChange}
         />

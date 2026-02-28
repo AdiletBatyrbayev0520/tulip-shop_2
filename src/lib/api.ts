@@ -75,5 +75,17 @@ export const api = {
         const response = await fetch(`${API_BASE_URL}/users/${userId}/statistics`);
         if (!response.ok) throw new Error("Failed to fetch user stats");
         return response.json();
+    },
+
+    getUserAddresses: async (userId: string) => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/addresses`);
+        if (!response.ok) throw new Error("Failed to fetch user addresses");
+        return response.json();
+    },
+
+    getUserOrders: async (userId: string) => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/orders`);
+        if (!response.ok) throw new Error("Failed to fetch user orders");
+        return response.json();
     }
 };
