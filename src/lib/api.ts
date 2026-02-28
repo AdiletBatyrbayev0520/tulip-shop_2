@@ -43,6 +43,12 @@ export const api = {
         return response.json();
     },
 
+    getCities: async () => {
+        const response = await fetch(`${API_BASE_URL}/locations/cities`);
+        if (!response.ok) throw new Error("Failed to fetch cities");
+        return response.json();
+    },
+
     // Orders
     createOrder: async (orderData: any) => {
         const response = await fetch(`${API_BASE_URL}/orders/`, {

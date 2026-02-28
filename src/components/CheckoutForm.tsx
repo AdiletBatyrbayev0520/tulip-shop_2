@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "./ui/Input";
 import { Icon } from "./ui/Icon";
 import { DeliveryType } from "../types";
+import { api } from "../lib/api";
 
 export interface CheckoutFormData {
     fullName: string;
     phone: string;
     deliveryDate: string;
     deliveryType: DeliveryType;
-    deliveryAddress: string;
+    cityId: string;
+    streetLine: string;
     orderNote: string;
 }
 
@@ -18,6 +20,12 @@ interface CheckoutFormProps {
 }
 
 export function CheckoutForm({ formData, onChange }: CheckoutFormProps) {
+    const [cities, setCities] = useState<{ city_id: number; city_name: string }[]>([]);
+
+    useEffect(() => {
+        api.getCities().then(setCities).catch(console.error);
+    }, []);
+
     return (
         <div className="px-4 pb-4">
             <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-3">
@@ -93,17 +101,39 @@ export function CheckoutForm({ formData, onChange }: CheckoutFormProps) {
                 </div>
 
                 {formData.deliveryType === "delivery" ? (
-                    <div>
-                        <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
-                            Delivery Address
-                        </label>
-                        <Input
-                            type="text"
-                            placeholder="Street, house, apt..."
-                            icon={<Icon name="location_on" className="text-[20px]" />}
-                            value={formData.deliveryAddress}
-                            onChange={(e) => onChange("deliveryAddress", e.target.value)}
-                        />
+                    <div className="space-y-3">
+                        <div>
+                            <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
+                                City
+                            </label>
+                            <div className="relative">
+                                <select
+                                    className="w-full bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-primary dark:text-white appearance-none"
+                                    value={formData.cityId}
+                                    onChange={(e) => onChange("cityId", e.target.value)}
+                                >
+                                    <option value="" disabled>Select City</option>
+                                    {cities.map(c => (
+                                        <option key={c.city_id} value={c.city_id}>{c.city_name}</option>
+                                    ))}
+                                </select>
+                                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-zinc-400 dark:text-white/40">
+                                    <Icon name="expand_more" />
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
+                                Street Address
+                            </label>
+                            <Input
+                                type="text"
+                                placeholder="Street, house, apt..."
+                                icon={<Icon name="location_on" className="text-[20px]" />}
+                                value={formData.streetLine}
+                                onChange={(e) => onChange("streetLine", e.target.value)}
+                            />
+                        </div>
                     </div>
                 ) : (
                     <div>

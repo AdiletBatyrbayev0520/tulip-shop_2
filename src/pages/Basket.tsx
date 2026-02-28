@@ -15,7 +15,8 @@ export default function Basket() {
     phone: "",
     deliveryDate: "",
     deliveryType: "delivery",
-    deliveryAddress: "",
+    cityId: "",
+    streetLine: "",
     orderNote: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,7 +46,7 @@ export default function Basket() {
     formData.fullName.trim() !== "" &&
     formData.phone.trim() !== "" &&
     formData.deliveryDate.trim() !== "" &&
-    (formData.deliveryType === "pickup" || formData.deliveryAddress.trim() !== "");
+    (formData.deliveryType === "pickup" || (formData.cityId !== "" && formData.streetLine.trim() !== ""));
 
   const handleSubmitOrder = async () => {
     if (!isFormValid || basket.length === 0) return;
@@ -54,7 +55,11 @@ export default function Basket() {
       const payload = {
         customer_notes: formData.orderNote,
         delivery_type: formData.deliveryType === "delivery" ? "DELIVERY" : "PICKUP",
-        delivery_address: formData.deliveryType === "delivery" ? formData.deliveryAddress : null,
+        delivery_address: formData.deliveryType === "delivery" ? {
+          address_name: "Home",
+          street_line: formData.streetLine,
+          city_id: parseInt(formData.cityId)
+        } : null,
         delivery_date: new Date(formData.deliveryDate).toISOString(),
         items: basket.map((item) => ({
           bouquet_id: item.id,
