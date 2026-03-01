@@ -3,6 +3,7 @@ import { Input } from "./ui/Input";
 import { Icon } from "./ui/Icon";
 import { DeliveryType } from "../types";
 import { api } from "../lib/api";
+import { BottomSheet } from "./ui/BottomSheet";
 
 export interface CheckoutFormData {
     fullName: string;
@@ -10,6 +11,7 @@ export interface CheckoutFormData {
     deliveryDate: string;
     deliveryType: DeliveryType;
     addressId: string;
+    addressName: string;
     cityId: string;
     streetLine: string;
     orderNote: string;
@@ -23,10 +25,13 @@ interface CheckoutFormProps {
 
 export function CheckoutForm({ addresses, formData, onChange }: CheckoutFormProps) {
     const [cities, setCities] = useState<{ city_id: number; city_name: string }[]>([]);
+    const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
 
     useEffect(() => {
         api.getCities().then(setCities).catch(console.error);
     }, []);
+
+    const selectedAddress = addresses.find(a => a.address_id.toString() === formData.addressId);
 
     return (
         <div className="px-4 pb-4">
@@ -104,68 +109,161 @@ export function CheckoutForm({ addresses, formData, onChange }: CheckoutFormProp
 
                 {formData.deliveryType === "delivery" ? (
                     <div className="space-y-3">
-                        {addresses.length > 0 && (
-                            <div>
-                                <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
-                                    Saved Addresses
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        className="w-full bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-primary dark:text-white appearance-none"
-                                        value={formData.addressId}
-                                        onChange={(e) => onChange("addressId", e.target.value)}
+                        <div>
+                            <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
+                                Delivery Address
+                            </label>
+                            <button
+                                type="button"
+                                onClick={() => setIsAddressSheetOpen(true)}
+                                className="w-full bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/20 rounded-xl px-4 py-3 text-sm flex items-center justify-between hover:border-primary transition-colors text-left"
+                            >
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className="flex shrink-0 h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <Icon name={formData.addressId === "new" ? "add_location" : "location_on"} />
+                                    </div>
+                                    <div className="flex flex-col truncate">
+                                        {formData.addressId === "new" ? (
+                                            <>
+                                                <span className="font-bold text-zinc-900 dark:text-white truncate">
+                                                    {formData.addressName || "New Address"}
+                                                </span>
+                                                <span className="text-xs text-zinc-500 dark:text-white/60 truncate">
+                                                    {formData.streetLine || "Enter address details"}
+                                                </span>
+                                            </>
+                                        ) : selectedAddress ? (
+                                            <>
+                                                <span className="font-bold text-zinc-900 dark:text-white truncate">
+                                                    {selectedAddress.address_name || "Address"}
+                                                </span>
+                                                <span className="text-xs text-zinc-500 dark:text-white/60 truncate">
+                                                    {selectedAddress.street_line}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <span className="text-zinc-500 font-medium">Select Delivery Address</span>
+                                        )}
+                                    </div>
+                                </div>
+                                <Icon name="chevron_right" className="text-zinc-400 shrink-0" />
+                            </button>
+                        </div>
+                        <BottomSheet
+                            isOpen={isAddressSheetOpen}
+                            onClose={() => setIsAddressSheetOpen(false)}
+                            title="Saved Addresses"
+                        >
+                            <div className="flex flex-col gap-3">
+                                {addresses.map(a => (
+                                    <button
+                                        key={a.address_id}
+                                        type="button"
+                                        onClick={() => {
+                                            onChange("addressId", a.address_id.toString());
+                                            setIsAddressSheetOpen(false);
+                                        }}
+                                        className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${formData.addressId === a.address_id.toString() ? 'border-primary bg-primary/5' : 'border-zinc-100 dark:border-white/10 hover:border-primary/30'}`}
                                     >
-                                        <option value="" disabled>Select an address</option>
-                                        <option value="new">+ Add new address</option>
-                                        {addresses.map(a => (
-                                            <option key={a.address_id} value={a.address_id.toString()}>
-                                                {a.address_name ? `${a.address_name} - ` : ""}{a.street_line}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-zinc-400 dark:text-white/40">
-                                        <Icon name="expand_more" />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {(addresses.length === 0 || formData.addressId === "new") && (
-                            <>
-                                <div>
-                                    <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
-                                        City
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            className="w-full bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/20 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-primary dark:text-white appearance-none"
-                                            value={formData.cityId}
-                                            onChange={(e) => onChange("cityId", e.target.value)}
-                                        >
-                                            <option value="" disabled>Select City</option>
-                                            {cities.map(c => (
-                                                <option key={c.city_id} value={c.city_id}>{c.city_name}</option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-zinc-400 dark:text-white/40">
-                                            <Icon name="expand_more" />
+                                        <div className={`flex shrink-0 h-12 w-12 items-center justify-center rounded-full ${formData.addressId === a.address_id.toString() ? 'bg-primary text-white' : 'bg-background-light dark:bg-white/10 text-zinc-500 dark:text-white/60'}`}>
+                                            <Icon name={a.address_name?.toLowerCase() === 'home' ? 'home' : a.address_name?.toLowerCase() === 'work' ? 'work' : 'location_on'} className="text-2xl" />
                                         </div>
+                                        <div className="flex flex-col flex-1 overflow-hidden">
+                                            <span className="font-bold text-lg text-zinc-900 dark:text-white truncate">
+                                                {a.address_name || "Address"}
+                                            </span>
+                                            <span className="text-sm text-zinc-500 dark:text-white/60 truncate">
+                                                {a.street_line}
+                                            </span>
+                                        </div>
+                                        {formData.addressId === a.address_id.toString() && (
+                                            <Icon name="check_circle" className="text-primary text-2xl shrink-0" />
+                                        )}
+                                    </button>
+                                ))}
+
+                                {formData.addressId !== "new" && (
+                                    <button
+                                        type="button"
+                                        onClick={() => onChange("addressId", "new")}
+                                        className="w-full text-left p-4 rounded-xl border-2 border-dashed border-zinc-200 dark:border-white/20 hover:border-primary transition-all flex items-center gap-4 mt-2"
+                                    >
+                                        <div className="flex shrink-0 h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                            <Icon name="add" className="text-2xl font-bold" />
+                                        </div>
+                                        <span className="font-bold text-lg text-primary">
+                                            + Add new address
+                                        </span>
+                                    </button>
+                                )}
+
+                                {formData.addressId === "new" && (
+                                    <div className="mt-4 p-5 rounded-2xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/10 flex flex-col gap-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                                                <Icon name="add_location" className="text-primary" />
+                                                New Address Details
+                                            </h4>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
+                                                Address Name
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                placeholder="e.g., Gym, Home, Office"
+                                                icon={<Icon name="label" className="text-[20px]" />}
+                                                value={formData.addressName}
+                                                onChange={(e) => onChange("addressName", e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
+                                                City
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    className="w-full bg-white dark:bg-background-dark border border-zinc-200 dark:border-white/20 rounded-xl px-10 py-3 text-sm focus:border-primary focus:ring-primary dark:text-white appearance-none"
+                                                    value={formData.cityId}
+                                                    onChange={(e) => onChange("cityId", e.target.value)}
+                                                >
+                                                    <option value="" disabled>Select City</option>
+                                                    {cities.map(c => (
+                                                        <option key={c.city_id} value={c.city_id}>{c.city_name}</option>
+                                                    ))}
+                                                </select>
+                                                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-zinc-400">
+                                                    <Icon name="location_city" className="text-[20px]" />
+                                                </div>
+                                                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-zinc-400 dark:text-white/40">
+                                                    <Icon name="expand_more" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
+                                                Street Address
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                placeholder="Street, house, apt..."
+                                                icon={<Icon name="streetview" className="text-[20px]" />}
+                                                value={formData.streetLine}
+                                                onChange={(e) => onChange("streetLine", e.target.value)}
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsAddressSheetOpen(false)}
+                                            disabled={!(formData.addressName || "").trim() || !formData.cityId || !(formData.streetLine || "").trim()}
+                                            className="w-full bg-primary hover:bg-primary/90 disabled:bg-zinc-200 dark:disabled:bg-white/10 text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 transition-all"
+                                        >
+                                            Confirm New Address
+                                        </button>
                                     </div>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-zinc-500 dark:text-white/60 mb-1 ml-1">
-                                        Street Address
-                                    </label>
-                                    <Input
-                                        type="text"
-                                        placeholder="Street, house, apt..."
-                                        icon={<Icon name="location_on" className="text-[20px]" />}
-                                        value={formData.streetLine}
-                                        onChange={(e) => onChange("streetLine", e.target.value)}
-                                    />
-                                </div>
-                            </>
-                        )}
+                                )}
+                            </div>
+                        </BottomSheet>
                     </div>
                 ) : (
                     <div>

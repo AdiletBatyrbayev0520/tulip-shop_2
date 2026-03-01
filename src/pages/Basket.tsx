@@ -15,7 +15,18 @@ export default function Basket() {
     const saved = localStorage.getItem('checkoutFormData');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return {
+          fullName: parsed.fullName || "",
+          phone: parsed.phone || "",
+          deliveryDate: parsed.deliveryDate || "",
+          deliveryType: parsed.deliveryType || "delivery",
+          addressId: parsed.addressId || "",
+          cityId: parsed.cityId || "",
+          streetLine: parsed.streetLine || "",
+          addressName: parsed.addressName || "",
+          orderNote: parsed.orderNote || "",
+        };
       } catch (e) { }
     }
     return {
@@ -26,6 +37,7 @@ export default function Basket() {
       addressId: "",
       cityId: "",
       streetLine: "",
+      addressName: "",
       orderNote: "",
     };
   });
@@ -100,12 +112,12 @@ export default function Basket() {
   };
 
   const isFormValid =
-    formData.fullName.trim() !== "" &&
-    formData.phone.trim() !== "" &&
-    formData.deliveryDate.trim() !== "" &&
+    (formData.fullName || "").trim() !== "" &&
+    (formData.phone || "").trim() !== "" &&
+    (formData.deliveryDate || "").trim() !== "" &&
     (formData.deliveryType === "pickup" ||
       (formData.addressId !== "new" && formData.addressId !== "") ||
-      (formData.addressId === "new" && formData.cityId !== "" && formData.streetLine.trim() !== ""));
+      (formData.addressId === "new" && formData.cityId !== "" && (formData.streetLine || "").trim() !== "" && (formData.addressName || "").trim() !== ""));
 
   const handleSubmitOrder = async () => {
     if (!isFormValid || basket.length === 0) return;
@@ -125,7 +137,7 @@ export default function Basket() {
         customer_notes: formData.orderNote,
         delivery_type: formData.deliveryType === "delivery" ? "DELIVERY" : "PICKUP",
         delivery_address: formData.deliveryType === "delivery" && formData.addressId === "new" ? {
-          address_name: "Home",
+          address_name: formData.addressName,
           street_line: formData.streetLine,
           city_id: parseInt(formData.cityId)
         } : null,
