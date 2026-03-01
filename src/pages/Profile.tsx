@@ -7,32 +7,33 @@ import { handleGoogleSignIn, api } from "../lib/api";
 
 export default function Profile() {
   const { isLoggedIn, user, setUser, addToBasket } = useAppContext();
-  const [stats, setStats] = useState<{ total_orders: number; total_spent: number } | null>(null);
-  const [latestOrderDate, setLatestOrderDate] = useState<string | null>(null);
+  const [fullName, setFullName] = useState(user?.full_name || "");
+  const [phoneNumber, setPhoneNumber] = useState(user?.phone_number || "");
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setFullName(user.full_name || "");
+      setPhoneNumber(user.phone_number || "");
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (isLoggedIn && user) {
         try {
-          // Fetch stats
-          const userStats = await api.getUserStats(user.id);
-          setStats(userStats);
-
-          // Fetch orders to get the latest one
-          const orders = await api.getUserOrders(user.id);
-          if (orders && orders.length > 0) {
-            const latestOrder = orders.reduce((latest: any, current: any) =>
-              new Date(current.created_at) > new Date(latest.created_at) ? current : latest
-            );
-            setLatestOrderDate(latestOrder.created_at);
-          }
+          const updatedUser = await api.getUser(user.user_id);
+          // Only update if stats differ to avoid infinite loops, or just update once on mount if needed.
+          // Since it's refetched, we can update the user context
+          setUser(updatedUser);
         } catch (error) {
           console.error("Failed to fetch user data for profile", error);
         }
       }
     };
+    // Fetch once on mount to get latest stats
     fetchUserData();
-  }, [isLoggedIn, user]);
+  }, [isLoggedIn]); // Removed 'user' from dependency to prevent infinite fetch loop if setUser changes object ref
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -65,6 +66,24 @@ export default function Profile() {
 
   const handleLogout = () => {
     setUser(null);
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      const updatedUser = await api.updateUser(user.user_id, {
+        full_name: fullName,
+        phone_number: phoneNumber,
+      });
+      setUser(updatedUser);
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Failed to update profile", error);
+      alert("Failed to update profile. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
 
@@ -162,7 +181,7 @@ export default function Profile() {
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700/50 flex flex-col items-center justify-center text-center">
               <span className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">
-                {stats?.total_orders || 0}
+                {user?.total_orders || 0}
               </span>
               <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
                 Orders
@@ -171,7 +190,7 @@ export default function Profile() {
             <div className="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700/50 flex flex-col items-center justify-center text-center relative overflow-hidden">
               <div className="absolute top-0 right-0 w-8 h-8 bg-green-50 dark:bg-green-900/20 rounded-bl-full"></div>
               <span className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">
-                {latestOrderDate ? new Date(latestOrderDate).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) : "--"}
+                {user?.last_buy_date ? new Date(user.last_buy_date).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) : "--"}
               </span>
               <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
                 Last Buy
@@ -180,7 +199,7 @@ export default function Profile() {
             <div className="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700/50 flex flex-col items-center justify-center text-center relative overflow-hidden">
               <div className="absolute top-0 right-0 w-8 h-8 bg-primary-light dark:bg-pink-900/20 rounded-bl-full"></div>
               <span className="text-xl font-bold text-primary mb-1">
-                ${stats?.total_spent || 0}
+                ${user?.total_spent || 0}
               </span>
               <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
                 Total
@@ -194,8 +213,12 @@ export default function Profile() {
             <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-200">
               Personal Info
             </h2>
-            <button className="text-sm font-semibold text-primary">
-              Save Changes
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="text-sm font-semibold text-primary disabled:opacity-50"
+            >
+              {isSaving ? "Saving..." : "Save Changes"}
             </button>
           </div>
           <div className="space-y-4 bg-white dark:bg-surface-dark p-5 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700/50">
@@ -205,7 +228,8 @@ export default function Profile() {
               </label>
               <Input
                 type="text"
-                defaultValue={user?.full_name || ""}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 icon={<Icon name="person" className="text-lg" />}
               />
             </div>
@@ -215,7 +239,7 @@ export default function Profile() {
               </label>
               <Input
                 type="email"
-                defaultValue={user?.email || ""}
+                value={user?.email || ""}
                 readOnly
                 icon={<Icon name="email" className="text-lg" />}
               />
@@ -226,7 +250,8 @@ export default function Profile() {
               </label>
               <Input
                 type="tel"
-                defaultValue={user?.phone_number || ""}
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 icon={<Icon name="phone" className="text-lg" />}
               />
             </div>

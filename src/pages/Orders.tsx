@@ -29,7 +29,7 @@ export default function Orders() {
       }
       setIsLoading(true);
       try {
-        const data: any[] = await api.getUserOrders(user.id);
+        const data: any[] = await api.getUserOrders(user.user_id);
         if (isMounted) setOrders(data);
       } catch (error) {
         console.error("Failed to fetch orders:", error);

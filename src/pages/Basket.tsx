@@ -50,8 +50,8 @@ export default function Basket() {
     setIsProfileLoading(true);
 
     Promise.all([
-      api.getUserAddresses(user.id),
-      api.getUser(user.id)
+      api.getUserAddresses(user.user_id),
+      api.getUser(user.user_id)
     ])
       .then(([fetchedAddresses, userData]) => {
         if (!isMounted) return;
@@ -113,7 +113,7 @@ export default function Basket() {
     try {
       if (user && initialProfile) {
         if (formData.fullName !== initialProfile.fullName || formData.phone !== initialProfile.phone) {
-          api.updateUser(user.id, {
+          api.updateUser(user.user_id, {
             full_name: formData.fullName,
             phone_number: formData.phone
           }).catch(err => console.error("Failed to background sync user profile:", err));
@@ -121,7 +121,7 @@ export default function Basket() {
       }
 
       const payload = {
-        user_id: user?.id || null,
+        user_id: user?.user_id || null,
         customer_notes: formData.orderNote,
         delivery_type: formData.deliveryType === "delivery" ? "DELIVERY" : "PICKUP",
         delivery_address: formData.deliveryType === "delivery" && formData.addressId === "new" ? {

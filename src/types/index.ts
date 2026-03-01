@@ -11,7 +11,7 @@ export type Bouquet = {
 export type BasketItem = Bouquet & { quantity: number };
 
 export type User = {
-    id: string;
+    user_id: string;
     email: string;
     full_name: string;
     avatar_url: string;
