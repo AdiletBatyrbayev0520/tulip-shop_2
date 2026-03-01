@@ -98,8 +98,11 @@ export default function Orders() {
     );
   };
 
-  const renderProgress = (category: string, status: string) => {
+  const renderProgress = (category: string, status: string, deliveryType: string) => {
     if (category === "Completed") return null;
+
+    const label3 = deliveryType === "PICKUP" ? "Ready For Pick Up" : "Delivery";
+    const label4 = deliveryType === "PICKUP" ? "Picked Up" : "Arrived";
 
     if (category === "Ordered") {
       return (
@@ -118,11 +121,11 @@ export default function Orders() {
             </div>
             <div className="flex flex-col items-center">
               <div className="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-700 mb-1.5"></div>
-              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">Delivery</span>
+              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{label3}</span>
             </div>
             <div className="flex flex-col items-center">
               <div className="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-700 mb-1.5"></div>
-              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">Arrived</span>
+              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{label4}</span>
             </div>
           </div>
         </div>
@@ -149,11 +152,11 @@ export default function Orders() {
           </div>
           <div className="flex flex-col items-center">
             <div className={clsx("w-2 h-2 rounded-full mb-1.5", isDelivery ? "bg-accent-green ring-4 ring-accent-green/20" : "bg-zinc-200 dark:bg-zinc-700")}></div>
-            <span className={clsx("text-[9px] font-bold uppercase tracking-tighter", isDelivery ? "text-accent-green" : "text-zinc-400")}>Delivery</span>
+            <span className={clsx("text-[9px] font-bold uppercase tracking-tighter", isDelivery ? "text-accent-green" : "text-zinc-400")}>{label3}</span>
           </div>
           <div className="flex flex-col items-center">
             <div className="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-700 mb-1.5"></div>
-            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">Arrived</span>
+            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{label4}</span>
           </div>
         </div>
       </div>
@@ -254,7 +257,7 @@ export default function Orders() {
                           </div>
                         </div>
 
-                        {renderProgress(category, order.order_status)}
+                        {renderProgress(category, order.order_status, order.delivery_type)}
                         {renderButtons(category, order.order_id)}
                       </div>
                     );
