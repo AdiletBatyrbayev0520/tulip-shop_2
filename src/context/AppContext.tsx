@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Bouquet, BasketItem, User } from '../types';
 
 
@@ -37,7 +37,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const [basket, setBasket] = useState<BasketItem[]>([]);
+  const [basket, setBasket] = useState<BasketItem[]>(() => {
+    const saved = localStorage.getItem('basket');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const addToBasket = (item: Bouquet) => {
     setBasket((prev) => {
@@ -57,7 +60,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const clearBasket = () => {
     setBasket([]);
+    localStorage.removeItem('basket');
   };
+
+  useEffect(() => {
+    if (basket.length > 0) {
+      localStorage.setItem('basket', JSON.stringify(basket));
+    } else {
+      localStorage.removeItem('basket');
+    }
+  }, [basket]);
 
   const updateQuantity = (id: number, delta: number) => {
     setBasket((prev) =>

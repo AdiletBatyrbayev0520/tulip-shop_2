@@ -15,6 +15,8 @@ export type User = {
     email: string;
     full_name: string;
     avatar_url: string;
+    phone_number?: string;
+    user_tier?: string;
 };
 
 export type OrderItem = {

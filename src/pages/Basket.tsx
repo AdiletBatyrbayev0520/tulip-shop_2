@@ -11,16 +11,28 @@ import { UserAddress } from "../types";
 
 export default function Basket() {
   const { user, basket, basketCount, basketTotal, updateQuantity, removeFromBasket, clearBasket } = useAppContext();
-  const [formData, setFormData] = useState<CheckoutFormData>({
-    fullName: "",
-    phone: "",
-    deliveryDate: "",
-    deliveryType: "delivery",
-    addressId: "",
-    cityId: "",
-    streetLine: "",
-    orderNote: "",
+  const [formData, setFormData] = useState<CheckoutFormData>(() => {
+    const saved = localStorage.getItem('checkoutFormData');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) { }
+    }
+    return {
+      fullName: "",
+      phone: "",
+      deliveryDate: "",
+      deliveryType: "delivery",
+      addressId: "",
+      cityId: "",
+      streetLine: "",
+      orderNote: "",
+    };
   });
+
+  useEffect(() => {
+    localStorage.setItem('checkoutFormData', JSON.stringify(formData));
+  }, [formData]);
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [initialProfile, setInitialProfile] = useState<{ fullName: string; phone: string } | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
@@ -55,9 +67,9 @@ export default function Basket() {
 
         setFormData(prev => ({
           ...prev,
-          addressId: fetchedAddresses.length > 0 ? fetchedAddresses[0].address_id.toString() : "",
-          fullName: profileData.fullName,
-          phone: profileData.phone
+          addressId: prev.addressId || (fetchedAddresses.length > 0 ? fetchedAddresses[0].address_id.toString() : ""),
+          fullName: prev.fullName || profileData.fullName,
+          phone: prev.phone || profileData.phone
         }));
       })
       .catch(console.error)
@@ -127,6 +139,7 @@ export default function Basket() {
       };
       await api.createOrder(payload);
       clearBasket();
+      localStorage.removeItem('checkoutFormData');
       navigate("/orders");
     } catch (error) {
       console.error("Failed to create order:", error);

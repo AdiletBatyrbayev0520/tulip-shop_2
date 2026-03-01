@@ -1,12 +1,38 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { Icon } from "../components/ui/Icon";
 import { Input } from "../components/ui/Input";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
-import { handleGoogleSignIn } from "../lib/api";
+import { handleGoogleSignIn, api } from "../lib/api";
 
 export default function Profile() {
   const { isLoggedIn, user, setUser, addToBasket } = useAppContext();
+  const [stats, setStats] = useState<{ total_orders: number; total_spent: number } | null>(null);
+  const [latestOrderDate, setLatestOrderDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (isLoggedIn && user) {
+        try {
+          // Fetch stats
+          const userStats = await api.getUserStats(user.id);
+          setStats(userStats);
+
+          // Fetch orders to get the latest one
+          const orders = await api.getUserOrders(user.id);
+          if (orders && orders.length > 0) {
+            const latestOrder = orders.reduce((latest: any, current: any) =>
+              new Date(current.created_at) > new Date(latest.created_at) ? current : latest
+            );
+            setLatestOrderDate(latestOrder.created_at);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data for profile", error);
+        }
+      }
+    };
+    fetchUserData();
+  }, [isLoggedIn, user]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -122,7 +148,7 @@ export default function Profile() {
               workspace_premium
             </span>
             <span className="text-amber-700 dark:text-amber-400 font-bold text-sm tracking-wide uppercase">
-              Gold Client
+              {user?.user_tier === "gold" ? "Gold Client" : user?.user_tier === "silver" ? "Silver Client" : user?.user_tier ? `${user.user_tier} Client` : "Standard Client"}
             </span>
           </div>
         </div>
@@ -136,7 +162,7 @@ export default function Profile() {
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700/50 flex flex-col items-center justify-center text-center">
               <span className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">
-                24
+                {stats?.total_orders || 0}
               </span>
               <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
                 Orders
@@ -145,7 +171,7 @@ export default function Profile() {
             <div className="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700/50 flex flex-col items-center justify-center text-center relative overflow-hidden">
               <div className="absolute top-0 right-0 w-8 h-8 bg-green-50 dark:bg-green-900/20 rounded-bl-full"></div>
               <span className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">
-                Oct 24
+                {latestOrderDate ? new Date(latestOrderDate).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) : "--"}
               </span>
               <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
                 Last Buy
@@ -154,7 +180,7 @@ export default function Profile() {
             <div className="bg-white dark:bg-surface-dark p-4 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-700/50 flex flex-col items-center justify-center text-center relative overflow-hidden">
               <div className="absolute top-0 right-0 w-8 h-8 bg-primary-light dark:bg-pink-900/20 rounded-bl-full"></div>
               <span className="text-xl font-bold text-primary mb-1">
-                $1,240
+                ${stats?.total_spent || 0}
               </span>
               <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
                 Total
@@ -196,12 +222,12 @@ export default function Profile() {
             </div>
             <div className="group">
               <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
-                Delivery Address
+                Phone Number
               </label>
               <Input
-                type="text"
-                defaultValue="123 Floral Lane, Blossom City"
-                icon={<Icon name="location_on" className="text-lg" />}
+                type="tel"
+                defaultValue={user?.phone_number || ""}
+                icon={<Icon name="phone" className="text-lg" />}
               />
             </div>
           </div>
