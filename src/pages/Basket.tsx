@@ -22,19 +22,50 @@ export default function Basket() {
     orderNote: "",
   });
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
+  const [initialProfile, setInitialProfile] = useState<{ fullName: string; phone: string } | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      api.getUserAddresses(user.id).then(fetchedAddresses => {
-        setAddresses(fetchedAddresses);
-        if (fetchedAddresses.length > 0) {
-          setFormData(prev => ({ ...prev, addressId: fetchedAddresses[0].address_id.toString() }));
-        }
-      }).catch(console.error);
+    if (!user) {
+      setIsProfileLoading(false);
+      return;
     }
+
+    let isMounted = true;
+    setIsProfileLoading(true);
+
+    Promise.all([
+      api.getUserAddresses(user.id),
+      api.getUser(user.id)
+    ])
+      .then(([fetchedAddresses, userData]) => {
+        if (!isMounted) return;
+
+        setAddresses(fetchedAddresses);
+
+        const profileData = {
+          fullName: userData.full_name || "",
+          phone: userData.phone_number || ""
+        };
+
+        setInitialProfile(profileData);
+
+        setFormData(prev => ({
+          ...prev,
+          addressId: fetchedAddresses.length > 0 ? fetchedAddresses[0].address_id.toString() : "",
+          fullName: profileData.fullName,
+          phone: profileData.phone
+        }));
+      })
+      .catch(console.error)
+      .finally(() => {
+        if (isMounted) setIsProfileLoading(false);
+      });
+
+    return () => { isMounted = false; };
   }, [user]);
 
   const handleFormChange = <K extends keyof CheckoutFormData>(field: K, value: CheckoutFormData[K]) => {
@@ -68,6 +99,15 @@ export default function Basket() {
     if (!isFormValid || basket.length === 0) return;
     setIsSubmitting(true);
     try {
+      if (user && initialProfile) {
+        if (formData.fullName !== initialProfile.fullName || formData.phone !== initialProfile.phone) {
+          api.updateUser(user.id, {
+            full_name: formData.fullName,
+            phone_number: formData.phone
+          }).catch(err => console.error("Failed to background sync user profile:", err));
+        }
+      }
+
       const payload = {
         user_id: user?.id || null,
         customer_notes: formData.orderNote,
@@ -141,11 +181,18 @@ export default function Basket() {
       </div>
 
       <div className="flex-1 overflow-y-auto w-full max-w-lg mx-auto bg-surface-light dark:bg-background-dark pb-32">
-        <CheckoutForm
-          addresses={addresses}
-          formData={formData}
-          onChange={handleFormChange}
-        />
+        {isProfileLoading ? (
+          <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <div className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+            <p className="text-zinc-500 dark:text-white/60 text-sm font-medium">Loading checkout details...</p>
+          </div>
+        ) : (
+          <CheckoutForm
+            addresses={addresses}
+            formData={formData}
+            onChange={handleFormChange}
+          />
+        )}
       </div>
 
       <div className="fixed bottom-[72px] left-0 right-0 z-40 bg-white/90 dark:bg-background-dark/95 backdrop-blur-md border-t border-zinc-100 dark:border-white/10 px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">

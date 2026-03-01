@@ -77,6 +77,22 @@ export const api = {
     },
 
     // Users
+    getUser: async (userId: string) => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+        if (!response.ok) throw new Error("Failed to fetch user");
+        return response.json();
+    },
+
+    updateUser: async (userId: string, data: { full_name?: string; phone_number?: string }) => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error("Failed to update user");
+        return response.json();
+    },
+
     getUserStats: async (userId: string) => {
         const response = await fetch(`${API_BASE_URL}/users/${userId}/statistics`);
         if (!response.ok) throw new Error("Failed to fetch user stats");
