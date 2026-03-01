@@ -115,5 +115,30 @@ export const api = {
         const response = await fetch(`${API_BASE_URL}/users/${userId}/orders`);
         if (!response.ok) throw new Error("Failed to fetch user orders");
         return response.json();
+    },
+
+    // Notifications
+    getUserNotifications: async (userId: string) => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/notifications`);
+        if (!response.ok) throw new Error("Failed to fetch user notifications");
+        return response.json();
+    },
+
+    markAllNotificationsRead: async (userId: string) => {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/notifications/read-all`, {
+            method: "PATCH",
+        });
+        if (!response.ok) throw new Error("Failed to mark all notifications as read");
+        return response.json();
+    },
+
+    updateNotificationStatus: async (notificationId: number, status: string) => {
+        const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/status`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ notification_status: status }),
+        });
+        if (!response.ok) throw new Error("Failed to update notification status");
+        return response.json();
     }
 };
