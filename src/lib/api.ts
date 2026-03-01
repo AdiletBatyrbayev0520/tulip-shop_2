@@ -13,6 +13,12 @@ export const handleGoogleSignIn = (pendingItem?: Bouquet | null) => {
 
 export const api = {
     // Catalog
+    getFilters: async (): Promise<{ colors: string[], quantities: number[] }> => {
+        const response = await fetch(`${API_BASE_URL}/filters`);
+        if (!response.ok) throw new Error("Failed to fetch filters");
+        return response.json();
+    },
+
     getBouquets: async (params?: { color?: string; flower_quantity?: number; }): Promise<Bouquet[]> => {
         let url = `${API_BASE_URL}/bouquets`;
         if (params) {

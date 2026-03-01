@@ -60,13 +60,14 @@ export default function Orders() {
     return <span className="text-[10px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-500 px-2.5 py-1 rounded-full w-fit mt-1.5 mb-2">Completed</span>;
   };
 
-  const renderButtons = (category: string) => {
+  const renderButtons = (category: string, orderId: string) => {
+    const detailsLink = `/orders/${orderId}`;
     if (category === "Ordered") {
       return (
         <div className="flex gap-3">
-          <button className="flex-1 py-3.5 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-2xl font-bold text-sm tracking-wide">
+          <Link to={detailsLink} className="flex-1 py-3.5 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-2xl font-bold text-sm tracking-wide text-center">
             Order Details
-          </button>
+          </Link>
           <button className="flex-1 py-3.5 bg-primary text-white rounded-2xl font-bold text-sm tracking-wide shadow-lg shadow-primary/20">
             Pay
           </button>
@@ -76,9 +77,9 @@ export default function Orders() {
     if (category === "In Process") {
       return (
         <div className="flex gap-3">
-          <button className="flex-1 py-3.5 bg-zinc-900 dark:bg-white dark:text-zinc-900 text-white rounded-2xl font-bold text-sm tracking-wide shadow-lg shadow-zinc-200 dark:shadow-none">
+          <Link to={detailsLink} className="flex-1 py-3.5 bg-zinc-900 dark:bg-white dark:text-zinc-900 text-white rounded-2xl font-bold text-sm tracking-wide shadow-lg shadow-zinc-200 dark:shadow-none block text-center">
             Track Delivery
-          </button>
+          </Link>
           <button className="flex-1 py-3.5 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-2xl font-bold text-sm tracking-wide flex items-center justify-center gap-2">
             Help
           </button>
@@ -87,9 +88,9 @@ export default function Orders() {
     }
     return (
       <div className="flex gap-3">
-        <button className="flex-1 py-3.5 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-2xl font-bold text-sm tracking-wide">
+        <Link to={detailsLink} className="flex-1 py-3.5 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-2xl font-bold text-sm tracking-wide text-center">
           Order Details
-        </button>
+        </Link>
         <button className="flex-1 py-3.5 bg-primary-light text-primary rounded-2xl font-bold text-sm tracking-wide shadow-none">
           Reorder
         </button>
@@ -254,7 +255,7 @@ export default function Orders() {
                         </div>
 
                         {renderProgress(category, order.order_status)}
-                        {renderButtons(category)}
+                        {renderButtons(category, order.order_id)}
                       </div>
                     );
                   })}

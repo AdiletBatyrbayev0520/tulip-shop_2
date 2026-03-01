@@ -12,17 +12,33 @@ import { api, handleGoogleSignIn } from "../lib/api";
 
 import { useEffect } from "react";
 
-const COLORS = ["All Flowers", "Red", "Yellow", "Pink", "Mixed", "White", "Purple"];
-const COUNTS = [5, 11, 21, 51, 101];
-
 export default function Shop() {
   const { isLoggedIn, addToBasket, basketCount } = useAppContext();
   const [bouquets, setBouquets] = useState<Bouquet[]>([]);
+  const [availableColors, setAvailableColors] = useState<string[]>(["All Flowers"]);
+  const [availableCounts, setAvailableCounts] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState("All Flowers");
   const [selectedCount, setSelectedCount] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingItem, setPendingItem] = useState<Bouquet | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchInitialData = async () => {
+      try {
+        const filters = await api.getFilters();
+        if (isMounted) {
+          setAvailableColors(filters.colors);
+          setAvailableCounts(filters.quantities);
+        }
+      } catch (error) {
+        console.error("Failed to fetch filters:", error);
+      }
+    };
+    fetchInitialData();
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -58,7 +74,7 @@ export default function Shop() {
   };
 
   return (
-    <div className="relative flex flex-col w-full h-full">
+    <div className="relative flex flex-col w-full min-h-screen pt-[72px]">
       <header className="fixed w-full top-0 left-0 z-40 flex items-center bg-white/80 dark:bg-background-dark/80 backdrop-blur-md p-4 pb-2 justify-between border-b border-zinc-100 dark:border-white/10">
         <div className="text-primary flex size-10 shrink-0 items-center justify-center">
           <Icon name="local_florist" className="text-3xl" />
@@ -79,7 +95,7 @@ export default function Shop() {
       </header>
 
       <div className="flex gap-3 px-4 pt-4 pb-2 overflow-x-auto no-scrollbar">
-        {COLORS.map((color) => (
+        {availableColors.map((color) => (
           <button
             key={color}
             onClick={() => setSelectedColor(color)}
@@ -96,7 +112,7 @@ export default function Shop() {
       </div>
 
       <div className="flex gap-2 px-4 pb-4 pt-1 overflow-x-auto no-scrollbar">
-        {COUNTS.map((count) => (
+        {availableCounts.map((count) => (
           <button
             key={count}
             onClick={() =>
