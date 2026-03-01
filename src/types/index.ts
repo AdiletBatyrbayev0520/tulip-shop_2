@@ -44,3 +44,41 @@ export type Order = {
     items: OrderItem[];
     created_at: string;
 };
+
+export type OrderItemBouquetResponse = {
+    name?: string;
+    pic_url?: string;
+};
+
+export type OrderItemResponse = {
+    bouquet_id: number;
+    unit_price: number;
+    item_quantity: number;
+    bouquet: OrderItemBouquetResponse;
+};
+
+export type OrderUserResponse = {
+    full_name?: string;
+    phone_number?: string;
+};
+
+export type OrderAddressResponse = {
+    street_line?: string;
+    city?: {
+        city_name?: string;
+    };
+};
+
+export type OrderDetailsResponse = {
+    order_id: string;
+    user_id?: string;
+    customer_notes?: string;
+    delivery_type: string;
+    delivery_address_id?: number;
+    delivery_date: string;
+    order_status: string;
+    items: OrderItemResponse[];
+    user?: OrderUserResponse;
+    delivery_address?: OrderAddressResponse;
+    last_modified_date: string;
+};

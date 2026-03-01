@@ -76,6 +76,12 @@ export const api = {
         return response.json();
     },
 
+    getOrderById: async (orderId: string) => {
+        const response = await fetch(`${API_BASE_URL}/orders/${orderId}`);
+        if (!response.ok) throw new Error("Failed to fetch order");
+        return response.json();
+    },
+
     // Users
     getUser: async (userId: string) => {
         const response = await fetch(`${API_BASE_URL}/users/${userId}`);

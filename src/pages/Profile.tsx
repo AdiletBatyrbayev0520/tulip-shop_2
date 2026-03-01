@@ -162,14 +162,21 @@ export default function Profile() {
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
             {user?.full_name || "Guest User"}
           </h1>
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 px-4 py-1.5 rounded-full border border-amber-200 dark:border-amber-700/50 shadow-[0_0_15px_rgba(255,215,0,0.3)]">
-            <span className="material-symbols-outlined text-amber-500 text-lg">
-              workspace_premium
-            </span>
-            <span className="text-amber-700 dark:text-amber-400 font-bold text-sm tracking-wide uppercase">
-              {user?.user_tier === "gold" ? "Gold Client" : user?.user_tier === "silver" ? "Silver Client" : user?.user_tier ? `${user.user_tier} Client` : "Standard Client"}
-            </span>
-          </div>
+          {(user?.user_tier?.toUpperCase() === "GOLD" || user?.user_tier?.toUpperCase() === "SILVER") && (
+            <div className={`inline-flex items-center space-x-2 px-4 py-1.5 rounded-full border shadow-sm ${user.user_tier.toUpperCase() === "GOLD"
+              ? "bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 border-amber-200 dark:border-amber-700/50 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+              : "bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800/50 dark:to-slate-700/50 border-slate-300 dark:border-slate-600/50 shadow-[0_0_15px_rgba(148,163,184,0.3)]"
+              }`}>
+              <span className={`material-symbols-outlined text-lg ${user.user_tier.toUpperCase() === "GOLD" ? "text-amber-500" : "text-slate-500 dark:text-slate-400"
+                }`}>
+                workspace_premium
+              </span>
+              <span className={`font-bold text-sm tracking-wide uppercase ${user.user_tier.toUpperCase() === "GOLD" ? "text-amber-700 dark:text-amber-400" : "text-slate-700 dark:text-slate-300"
+                }`}>
+                {user.user_tier.toUpperCase() === "GOLD" ? "Gold Client" : "Silver Client"}
+              </span>
+            </div>
+          )}
         </div>
       </header>
 
